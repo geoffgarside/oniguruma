@@ -1,3 +1,4 @@
+#include <ruby.h>
 #include <oniguruma.h>
 #include "rb_oniguruma.h"
 #include "rb_oniguruma_oregexp.h"
@@ -14,9 +15,7 @@ Init_oniguruma()
   
   /* Module Constants */
   rb_define_const(og_mOniguruma, "VERSION", 
-    rb_str_new2(ONIGURUMA_VERSION_MAJOR "." 
-                ONIGURUMA_VERSION_MINOR "." 
-                ONIGURUMA_VERSION_TEENY));
+    rb_str_new2(onig_version()));
   
   /* Encodings */
   rb_define_const(og_mOniguruma, "ENCODING_UNDEF",            INT2FIX(0));
@@ -87,7 +86,7 @@ Init_oniguruma()
   rb_hash_aset(og_mOniguruma_Opt_Shortcuts, rb_str_new2("B"), rb_const_get(og_mOniguruma, rb_intern("OPTION_NOTBOL")));
   rb_hash_aset(og_mOniguruma_Opt_Shortcuts, rb_str_new2("E"), rb_const_get(og_mOniguruma, rb_intern("OPTION_NOTEOL")));
   
-  OBJ_FREEZE(og_mOniguruma_Opt_Shortcuts)
+  OBJ_FREEZE(og_mOniguruma_Opt_Shortcuts);
   
   rb_define_const(og_mOniguruma, "OPT_SHORTCUTS", og_mOniguruma_Opt_Shortcuts);
 }

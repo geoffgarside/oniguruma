@@ -1,25 +1,5 @@
-#include "rb_oniguruma.h"
-#include "rb_oniguruma_oregexp.h"
-#include "rb_oniguruma_match_data_ext.h"
-
-void
-Init_oniguruma_match_data_ext()
-{
-  /* Alias Existing Methods */
-  /*              Class      New Name                   Original Name */
-  rb_define_alias(rb_cMatch, "aref_without_oniguruma",    "[]");
-  rb_define_alias(rb_cMatch, "begin_without_oniguruma",   "begin");
-  rb_define_alias(rb_cMatch, "end_without_oniguruma",     "end");
-  rb_define_alias(rb_cMatch, "offset_without_oniguruma",  "offset");
-  
-  /* Define the replacements */
-  /*               Class      Method      Handler Function                  Args */
-  rb_define_method(rb_cMatch, "to_index", og_oniguruma_match_data_to_index,    1);
-  rb_define_method(rb_cMatch, "[]",       og_oniguruma_match_data_aref,       -1);
-  rb_define_method(rb_cMatch, "begin",    og_oniguruma_match_data_begin,      -1);
-  rb_define_method(rb_cMatch, "end",      og_oniguruma_match_data_end,        -1);
-  rb_define_method(rb_cMatch, "offset",   og_oniguruma_match_data_offset,     -1);
-}
+#include <ruby.h>
+#include "rb_oniguruma_core_ext.h"
 
 static VALUE
 og_oniguruma_match_data_to_index(VALUE self, VALUE sym)
@@ -132,4 +112,23 @@ og_oniguruma_match_data_offset(int argc, VALUE *argv, VALUE self)
   }
   
   return rb_funcall3(self, rb_intern("offset_without_oniguruma"), RARRAY(idx)->len, RARRAY(idx)->ptr);
+}
+
+void
+Init_oniguruma_match_data_ext()
+{
+  /* Alias Existing Methods */
+  /*              Class      New Name                   Original Name */
+  rb_define_alias(rb_cMatch, "aref_without_oniguruma",    "[]");
+  rb_define_alias(rb_cMatch, "begin_without_oniguruma",   "begin");
+  rb_define_alias(rb_cMatch, "end_without_oniguruma",     "end");
+  rb_define_alias(rb_cMatch, "offset_without_oniguruma",  "offset");
+  
+  /* Define the replacements */
+  /*               Class      Method      Handler Function                  Args */
+  rb_define_method(rb_cMatch, "to_index", og_oniguruma_match_data_to_index,    1);
+  rb_define_method(rb_cMatch, "[]",       og_oniguruma_match_data_aref,       -1);
+  rb_define_method(rb_cMatch, "begin",    og_oniguruma_match_data_begin,      -1);
+  rb_define_method(rb_cMatch, "end",      og_oniguruma_match_data_end,        -1);
+  rb_define_method(rb_cMatch, "offset",   og_oniguruma_match_data_offset,     -1);
 }

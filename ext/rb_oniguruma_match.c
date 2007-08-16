@@ -14,7 +14,7 @@ og_oniguruma_oregexp_match_alloc()
   return (VALUE)match;
 }
 
-static VALUE
+VALUE
 og_oniguruma_oregexp_match_initialize(OnigRegion *region, VALUE string)
 {
   int i;
@@ -25,8 +25,8 @@ og_oniguruma_oregexp_match_initialize(OnigRegion *region, VALUE string)
   RMATCH(match)->regs->num_regs = region->num_regs;
   RMATCH(match)->regs->allocated = region->num_regs;
   
-  RMATCH(match)->regs->beg = ALLOC_N(int, region->num_regs;);
-  RMATCH(match)->regs->end = ALLOC_N(int, region->num_regs;);
+  RMATCH(match)->regs->beg = ALLOC_N(int, region->num_regs);
+  RMATCH(match)->regs->end = ALLOC_N(int, region->num_regs);
   
   for (i = 0; i < region->num_regs; i++) {
     RMATCH(match)->regs->beg[i] = region->beg[i];
@@ -36,11 +36,15 @@ og_oniguruma_oregexp_match_initialize(OnigRegion *region, VALUE string)
   return match;
 }
 
-static int og_oniguruma_name_callback(const UChar *name, const UChar *name_end, 
-  int ngroup_num, int *group_nums, regex_t *reg, struct callback_packet *arg)
+int
+og_oniguruma_name_callback(UChar *name, UChar *name_end, 
+  int ngroup_num, int *group_nums, regex_t *reg, void *magic)
 {
-  int i, gn;
-  VALUE hash = arg->hash;
+  int i;
+  VALUE hash;
+  og_CallbackPacket * arg = (og_CallbackPacket*)magic;
+  
+  hash = arg->hash;
 
   for (i = 0; i < ngroup_num; i++)
     rb_hash_aset(hash, ID2SYM(rb_intern(name)), INT2FIX(group_nums[i]));

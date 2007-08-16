@@ -1,15 +1,15 @@
 #ifndef _RB_ONIGURUMA_OREGEXP_H_
 #define _RB_ONIGURUMA_OREGEXP_H_
 
-#include "ruby.h"
+#include <ruby.h>
 #include <oniguruma.h>
 
 void Init_oniguruma_oregexp();
 RUBY_EXTERN VALUE og_cOniguruma_ORegexp;
 
-typedef struct _og_cOniguruam_ORegexp_Struct {
+typedef struct og_oregexp {
   regex_t *reg;
-} og_cOniguruma_ORegexp_Struct;
+} og_ORegexp;
 
 typedef struct og_substitution_args {
   VALUE	self;
@@ -46,40 +46,29 @@ typedef struct og_scan_args {
 #define og_oniguruma_oregexp_get_code_point(cp, cpl, enc, rep, pos) do {  \
   cp = ONIGENC_MBC_TO_CODE(enc, RSTRING(rep)->ptr + pos,                  \
     RSTRING(rep)->ptr + RSTRING(rep)->len - 1);                           \
-  cpl = ONIGENC_MBC_ENC_LEN(enc, RSTRING(rep)->ptr + pos);                \
+  cpl = enc_len(enc, RSTRING(rep)->ptr + pos);                \
 } while(0)
 
-static inline void og_oniguruma_str_mod_check(VALUE s, char *p, long len)
-{
-  if (RSTRING(s)->ptr != p || RSTRING(s)->len != len)
-    rb_raise(rb_eRuntimeError, "string modified");
-}
-
-static void og_oniguruma_oregexp_free(void *oregexp);
-static VALUE og_oniguruma_oregexp_alloc(VALUE klass);
-
 /* Class Methods */
-static VALUE og_oniguruma_oregexp_escape(int argc, VALUE *argv, VALUE self);
-static VALUE og_oniguruma_oregexp_last_match(int argc, VALUE *argv, VALUE self);
+VALUE og_oniguruma_oregexp_escape(int argc, VALUE *argv, VALUE self);
+VALUE og_oniguruma_oregexp_last_match(int argc, VALUE *argv, VALUE self);
 
 /* Instance Methods */
-static VALUE og_oniguruma_oregexp_initialize(int argc, VALUE *argv, VALUE self);
-static VALUE og_oniguruma_oregexp_initialize_real(VALUE self, VALUE re, VALUE options);
-
-static VALUE og_oniguruma_oregexp_match(int argc, VALUE *argv, VALUE self);
-static VALUE og_oniguruma_oregexp_operator_match(VALUE self, VALUE str);
-static VALUE og_oniguruma_oregexp_operator_equality(VALUE self, VALUE str);
-static VALUE og_oniguruma_oregexp_operator_identical(VALUE self, VALUE str);
-static VALUE og_oniguruma_oregexp_sub(int argc, VALUE *argv, VALUE self);
-static VALUE og_oniguruma_oregexp_sub_bang(int argc, VALUE *argv, VALUE self);
-static VALUE og_oniguruma_oregexp_gsub(int argc, VALUE *argv, VALUE self);
-static VALUE og_oniguruma_oregexp_gsub_bang(int argc, VALUE *argv, VALUE self);
-static VALUE og_oniguruma_oregexp_scan(VALUE self, VALUE str);
-static VALUE og_oniguruma_oregexp_casefold(VALUE self);
-static VALUE og_oniguruma_oregexp_kcode(VALUE self);
-static VALUE og_oniguruma_oregexp_options(VALUE self);
-static VALUE og_oniguruma_oregexp_source(VALUE self);
-static VALUE og_oniguruma_oregexp_inspect(VALUE self);
-static VALUE og_oniguruma_oregexp_to_s(VALUE self);
+VALUE og_oniguruma_oregexp_initialize(int argc, VALUE *argv, VALUE self);
+VALUE og_oniguruma_oregexp_match(int argc, VALUE *argv, VALUE self);
+VALUE og_oniguruma_oregexp_operator_match(VALUE self, VALUE str);
+VALUE og_oniguruma_oregexp_operator_equality(VALUE self, VALUE str);
+VALUE og_oniguruma_oregexp_operator_identical(VALUE self, VALUE str);
+VALUE og_oniguruma_oregexp_sub(int argc, VALUE *argv, VALUE self);
+VALUE og_oniguruma_oregexp_sub_bang(int argc, VALUE *argv, VALUE self);
+VALUE og_oniguruma_oregexp_gsub(int argc, VALUE *argv, VALUE self);
+VALUE og_oniguruma_oregexp_gsub_bang(int argc, VALUE *argv, VALUE self);
+VALUE og_oniguruma_oregexp_scan(VALUE self, VALUE str);
+VALUE og_oniguruma_oregexp_casefold(VALUE self);
+VALUE og_oniguruma_oregexp_kcode(VALUE self);
+VALUE og_oniguruma_oregexp_options(VALUE self);
+VALUE og_oniguruma_oregexp_source(VALUE self);
+VALUE og_oniguruma_oregexp_inspect(VALUE self);
+VALUE og_oniguruma_oregexp_to_s(VALUE self);
 
 #endif /* _RB_ONIGURUMA_OREGEXP_H_ */

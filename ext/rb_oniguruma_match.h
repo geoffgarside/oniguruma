@@ -1,8 +1,8 @@
 #ifndef _RB_ONIGURUMA_MATCH_H_
 #define _RB_ONIGURUMA_MATCH_H_
 
-#include "ruby.h"
-#include <oniguruma.h>  /* for struct re_registers */
+#include <ruby.h>
+#include <oniguruma.h>  /* for struct re_registers and OnigRegion */
 
 /* Cannot include re.h due to typedef conflicts */
 struct RMatch {
@@ -21,11 +21,10 @@ typedef struct og_callback_packet {
 } og_CallbackPacket;
 
 /* Our Match methods */
-static VALUE og_oniguruma_oregexp_match_alloc();
-static VALUE og_oniguruma_oregexp_match_initialize();
+VALUE og_oniguruma_oregexp_match_initialize();
 
 /* Oniguruma foreach callback */
-static int og_oniguruma_name_callback(const UChar *name, const UChar *name_end, 
-  int ngroup_num, int *group_nums, regex_t *reg, struct callback_packet *arg);
+int og_oniguruma_name_callback(UChar *name, UChar *name_end, 
+  int ngroup_num, int *group_nums, regex_t *reg, void *magic);
 
 #endif /* _RB_ONIGURUMA_MATCH_H_ */
