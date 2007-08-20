@@ -1,17 +1,17 @@
 #include <ruby.h>
 #include <oniguruma.h>
 #include "rb_oniguruma.h"
-#include "rb_oniguruma_oregexp.h"
 
 void
 Init_oniguruma()
 {
-  VALUE og_mOniguruma_Opt_Shortcuts;
-  og_mOniguruma = rb_define_module("Oniguruma");
+  VALUE og_mOniguruma, og_mOniguruma_Opt_Shortcuts;
+  og_mOniguruma = rb_define_module(OG_M_ONIGURUMA);
   
-  Init_oniguruma_oregexp(og_mOniguruma);
-  Init_oniguruma_string_ext();
-  Init_oniguruma_match_data_ext();
+  og_oniguruma_oregexp(og_mOniguruma, OG_C_OREGEXP);
+  
+  og_oniguruma_string_ext();
+  og_oniguruma_match_data_ext();
   
   /* Module Constants */
   rb_define_const(og_mOniguruma, "VERSION", 

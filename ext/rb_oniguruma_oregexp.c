@@ -25,12 +25,13 @@ static VALUE
 og_oniguruma_oregexp_last_match(int argc, VALUE *argv, VALUE self)
 {
   VALUE index, array;
+  
   rb_scan_args(argc, argv, "01", &index);
   
   if (index == Qnil) {
-    return rb_cv_get(og_cOniguruma_ORegexp, "@@last_match");
+    return rb_cv_get(self, "@@last_match");
   } else {
-    array = rb_cv_get(og_cOniguruma_ORegexp, "@@last_match");
+    array = rb_cv_get(self, "@@last_match");
     return rb_ary_entry(array, FIX2INT(index));
   }
 }
@@ -90,7 +91,9 @@ og_oniguruma_oregexp_compile(VALUE self, VALUE regex)
 static void
 og_oniguruma_oregexp_options_parse(VALUE self, VALUE hash)
 {
-  VALUE options, encoding, syntax;
+  VALUE options, encoding, syntax, og_mOniguruma;
+  
+  og_mOniguruma = rb_const_get(rb_cObject, rb_intern(OG_M_ONIGURUMA));
   
   encoding = rb_hash_aref(hash, ID2SYM(rb_intern("encoding")));
   options  = rb_hash_aref(hash, ID2SYM(rb_intern("options")));
@@ -138,7 +141,9 @@ og_oniguruma_oregexp_initialize(int argc, VALUE *argv, VALUE self)
   long opts;
   char *byte;
   VALUE re, args, options, shortcuts,
-    cut, opt, enc, syn;
+    cut, opt, enc, syn, og_mOniguruma;
+
+  og_mOniguruma = rb_const_get(rb_cObject, rb_intern(OG_M_ONIGURUMA));
   
   rb_scan_args(argc, argv, "1*", &re, &args);
   
@@ -198,7 +203,7 @@ og_oniguruma_oregexp_get_match(VALUE self, OnigRegion *region, VALUE string)
   
   match = og_oniguruma_oregexp_match_initialize(region, string);
   
-  rb_cv_set(og_cOniguruma_ORegexp, "@@last_match", match);
+  rb_cv_set(self, "@@last_match", match);
   
   packet.region = region;
   
@@ -254,7 +259,7 @@ og_oniguruma_oregexp_match(int argc, VALUE *argv, VALUE self)
     onig_region_free(region, 1);
     
     onig_error_code_to_str(error_string, result);
-    rb_raise(rb_eArgError, "Oniguruma Error: %s", error_string);
+    rb_raise(rb_eArgError, OG_M_ONIGURUMA " Error: %s", error_string);
   }
 }
 
@@ -687,7 +692,9 @@ static VALUE
 og_oniguruma_oregexp_to_s(VALUE self)
 {
   int options;
-  VALUE str;
+  VALUE str, og_mOniguruma;
+  
+  og_mOniguruma = rb_const_get(rb_cObject, rb_intern(OG_M_ONIGURUMA));
   
   options = FIX2INT(og_oniguruma_oregexp_options(self));
   str = rb_str_new2("(?");
@@ -723,7 +730,9 @@ static VALUE
 og_oniguruma_oregexp_inspect(VALUE self)
 {
   int options;
-  VALUE str;
+  VALUE str, og_mOniguruma;
+  
+  og_mOniguruma = rb_const_get(rb_cObject, rb_intern(OG_M_ONIGURUMA));
   
   options = FIX2INT(og_oniguruma_oregexp_options(self));
   str = rb_str_new2("/");
@@ -743,11 +752,11 @@ og_oniguruma_oregexp_inspect(VALUE self)
 }
 
 void
-Init_oniguruma_oregexp(VALUE parent)
+og_oniguruma_oregexp(VALUE mod, const char* name)
 {
-  VALUE og_cOniguruma_ORegexp_Singleton;
+  VALUE og_cOniguruma_ORegexp, og_cOniguruma_ORegexp_Singleton;
   
-  og_cOniguruma_ORegexp = rb_define_class_under(parent, "ORegexp", rb_cObject);
+  og_cOniguruma_ORegexp = rb_define_class_under(mod, name, rb_cObject);
   rb_define_alloc_func(og_cOniguruma_ORegexp, og_oniguruma_oregexp_alloc);
   
   /* Now add the methods to the class */

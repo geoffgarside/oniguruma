@@ -82,7 +82,7 @@ og_oniguruma_string_osub_bang(int argc, VALUE *argv, VALUE self)
 }
 
 void
-Init_oniguruma_string_ext()
+og_oniguruma_string_ext()
 {
   /*               Class       Method     Handler Function              Args */
   rb_define_method(rb_cString, "ogsub",   og_oniguruma_string_ogsub,      -1);

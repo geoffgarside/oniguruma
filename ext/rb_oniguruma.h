@@ -4,15 +4,18 @@
 #include <ruby.h>
 #include <oniguruma.h>
 
-/* Module and Class variables */
-RUBY_EXTERN VALUE og_mOniguruma;
-RUBY_EXTERN VALUE og_cOniguruma_ORegexp;
+#ifndef OG_M_ONIGURUMA
+#define OG_M_ONIGURUMA "Oniguruma"
+#endif
+
+#ifndef OG_C_OREGEXP
+#define OG_C_OREGEXP "ORegexp"
+#endif
 
 /* Init functions */
-void Init_oniguruma();
-void Init_oniguruma_oregexp(VALUE parent);
-void Init_oniguruma_string_ext();
-void Init_oniguruma_match_data_ext();
+void og_oniguruma_oregexp(VALUE mod, const char* name);
+void og_oniguruma_string_ext();
+void og_oniguruma_match_data_ext();
 
 /* Ruby to C constant mapping functions */
 OnigEncodingType* og_oniguruma_extract_encoding(VALUE encoding);

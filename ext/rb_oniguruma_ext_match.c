@@ -115,7 +115,7 @@ og_oniguruma_match_data_offset(int argc, VALUE *argv, VALUE self)
 }
 
 void
-Init_oniguruma_match_data_ext()
+og_oniguruma_match_data_ext()
 {
   /* Alias Existing Methods */
   /*              Class      New Name                   Original Name */
