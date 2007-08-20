@@ -603,6 +603,9 @@ static VALUE
 og_oniguruma_oregexp_casefold(VALUE self)
 {
   int options, ignore_case;
+  VALUE og_mOniguruma;
+  
+  og_mOniguruma = rb_const_get(rb_cObject, OG_M_ONIGURUMA);
   
   options = FIX2INT(rb_iv_get(self, "@options"));
   ignore_case = FIX2INT(rb_const_get(og_mOniguruma, rb_intern("OPTION_IGNORECASE")));
@@ -789,5 +792,5 @@ og_oniguruma_oregexp(VALUE mod, const char* name)
   /* Class method aliases */
   og_cOniguruma_ORegexp_Singleton = rb_singleton_class(og_cOniguruma_ORegexp);
   rb_define_alias(og_cOniguruma_ORegexp_Singleton, "compile", "new");
-  rb_define_alias(og_cOniguruma_ORegexp_Singleton, "escape", "quote");
+  rb_define_alias(og_cOniguruma_ORegexp_Singleton, "quote", "escape");
 }
