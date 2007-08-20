@@ -1,6 +1,12 @@
 #include "rb_oniguruma.h"
-#include "rb_oniguruma_oregexp.h"
 #include "rb_oniguruma_match.h"
+#include "rb_oniguruma_struct_args.h"
+
+#define og_oniguruma_oregexp_get_code_point(cp, cpl, enc, rep, pos) do {  \
+  cp = ONIGENC_MBC_TO_CODE(enc, RSTRING(rep)->ptr + pos,                  \
+    RSTRING(rep)->ptr + RSTRING(rep)->len - 1);                           \
+  cpl = enc_len(enc, RSTRING(rep)->ptr + pos);                            \
+} while(0)
 
 static inline void og_oniguruma_str_mod_check(VALUE s, char *p, long len)
 {
@@ -8,58 +14,14 @@ static inline void og_oniguruma_str_mod_check(VALUE s, char *p, long len)
     rb_raise(rb_eRuntimeError, "string modified");
 }
 
-static void og_oniguruma_oregexp_free(void *arg);
-static VALUE og_oniguruma_oregexp_alloc(VALUE klass);
-
-void
-Init_oniguruma_oregexp()
-{
-  VALUE og_cOniguruma_ORegexp_Singleton;
-  
-  og_cOniguruma_ORegexp = rb_define_class_under(og_mOniguruma, "ORegexp", rb_cObject);
-  rb_define_alloc_func(og_cOniguruma_ORegexp, og_oniguruma_oregexp_alloc);
-  
-  /* Now add the methods to the class */
-  rb_define_singleton_method(og_cOniguruma_ORegexp, "escape",     og_oniguruma_oregexp_escape,      -1);
-  rb_define_singleton_method(og_cOniguruma_ORegexp, "last_match", og_oniguruma_oregexp_last_match,  -1);
-  
-  /* Define Instance Methods */
-  rb_define_method(og_cOniguruma_ORegexp, "initialize", og_oniguruma_oregexp_initialize,            -1);
-  rb_define_method(og_cOniguruma_ORegexp, "match",      og_oniguruma_oregexp_match,                 -1);
-  rb_define_method(og_cOniguruma_ORegexp, "=~",         og_oniguruma_oregexp_operator_match,         1);
-  rb_define_method(og_cOniguruma_ORegexp, "==",         og_oniguruma_oregexp_operator_equality,      1);
-  rb_define_method(og_cOniguruma_ORegexp, "===",        og_oniguruma_oregexp_operator_identical,     1);
-  rb_define_method(og_cOniguruma_ORegexp, "sub",        og_oniguruma_oregexp_sub,                   -1);
-  rb_define_method(og_cOniguruma_ORegexp, "sub!",       og_oniguruma_oregexp_sub_bang,              -1);
-  rb_define_method(og_cOniguruma_ORegexp, "gsub",       og_oniguruma_oregexp_gsub,                  -1);
-  rb_define_method(og_cOniguruma_ORegexp, "gsub!",      og_oniguruma_oregexp_gsub_bang,             -1);
-  rb_define_method(og_cOniguruma_ORegexp, "scan",       og_oniguruma_oregexp_scan,                   1);
-  rb_define_method(og_cOniguruma_ORegexp, "casefold?",  og_oniguruma_oregexp_casefold,               0);
-  rb_define_method(og_cOniguruma_ORegexp, "kcode",      og_oniguruma_oregexp_kcode,                  0);
-  rb_define_method(og_cOniguruma_ORegexp, "options",    og_oniguruma_oregexp_options,                0);
-  rb_define_method(og_cOniguruma_ORegexp, "source",     og_oniguruma_oregexp_source,                 0);
-  rb_define_method(og_cOniguruma_ORegexp, "inspect",    og_oniguruma_oregexp_inspect,                0);
-  rb_define_method(og_cOniguruma_ORegexp, "to_s",       og_oniguruma_oregexp_to_s,                   0);
-  
-  /* Define Aliases */
-  /* Instance method aliases */
-  rb_define_alias(og_cOniguruma_ORegexp, "eql?", "==");
-  rb_define_alias(og_cOniguruma_ORegexp, "match_all", "scan");
-  
-  /* Class method aliases */
-  og_cOniguruma_ORegexp_Singleton = rb_singleton_class(og_cOniguruma_ORegexp);
-  rb_define_alias(og_cOniguruma_ORegexp_Singleton, "compile", "new");
-  rb_define_alias(og_cOniguruma_ORegexp_Singleton, "escape", "quote");
-}
-
 /* Class Methods */
-VALUE
+static VALUE
 og_oniguruma_oregexp_escape(int argc, VALUE *argv, VALUE self)
 {
   return rb_funcall3(rb_cRegexp, rb_intern("escape"), argc, argv);
 }
 
-VALUE
+static VALUE
 og_oniguruma_oregexp_last_match(int argc, VALUE *argv, VALUE self)
 {
   VALUE index, array;
@@ -73,7 +35,7 @@ og_oniguruma_oregexp_last_match(int argc, VALUE *argv, VALUE self)
   }
 }
 
-/* Constructor and Instance Methods */
+/* Constructor Methods */
 static void
 og_oniguruma_oregexp_free(void *arg)
 {
@@ -90,6 +52,7 @@ og_oniguruma_oregexp_alloc(VALUE klass)
   return Data_Wrap_Struct(klass, 0, og_oniguruma_oregexp_free, oregexp);
 }
 
+/* Instance Methods */
 static int
 og_oniguruma_oregexp_compile(VALUE self, VALUE regex)
 {
@@ -104,7 +67,7 @@ og_oniguruma_oregexp_compile(VALUE self, VALUE regex)
   
   encoding = og_oniguruma_extract_encoding(rb_iv_get(self, "@encoding"));
   syntax   = og_oniguruma_extract_syntax(rb_iv_get(self, "@syntax"));
-  options  = (OnigOptionType)NUM2INT(rb_iv_get(self, "@options"));
+  options  = og_oniguruma_extract_option(rb_iv_get(self, "@options"));
   
   Data_Get_Struct(self, og_ORegexp, oregexp);
   
@@ -157,23 +120,18 @@ og_oniguruma_oregexp_initialize_real(VALUE self, VALUE re, VALUE options)
   return self;
 }
 
-/* TODO: Modify to handle => r = ORegexp.new('cat', 'i', 'utf8', 'java')
-   In this case `hash` might be a string. Would need to change method
-   to -1 format and parse.
-*/
-
 static void
 og_oniguruma_oregexp_upper(char *str)
 {
   while (*str != '\0')
   {
-    if ('a' < *str && *str < 'z')
+    if ('a' <= *str && *str <= 'z')
       *str -= 32;
     str++;
   }
 }
 
-VALUE
+static VALUE
 og_oniguruma_oregexp_initialize(int argc, VALUE *argv, VALUE self)
 {
   int i;
@@ -253,7 +211,7 @@ og_oniguruma_oregexp_get_match(VALUE self, OnigRegion *region, VALUE string)
   return match;
 }
 
-VALUE
+static VALUE
 og_oniguruma_oregexp_match(int argc, VALUE *argv, VALUE self)
 {
   int result;
@@ -554,25 +512,25 @@ og_oniguruma_oregexp_do_substitution_safe(VALUE self,
     og_oniguruma_oregexp_do_cleanup, (VALUE)region);
 }
 
-VALUE
+static VALUE
 og_oniguruma_oregexp_gsub(int argc, VALUE *argv, VALUE self)
 {
   return og_oniguruma_oregexp_do_substitution_safe(self, argc, argv, 1, 0);
 }
 
-VALUE
+static VALUE
 og_oniguruma_oregexp_gsub_bang(int argc, VALUE *argv, VALUE self)
 {
   return og_oniguruma_oregexp_do_substitution_safe(self, argc, argv, 1, 1);
 }
 
-VALUE
+static VALUE
 og_oniguruma_oregexp_sub(int argc, VALUE *argv, VALUE self)
 {
   return og_oniguruma_oregexp_do_substitution_safe(self, argc, argv, 0, 0);
 }
 
-VALUE
+static VALUE
 og_oniguruma_oregexp_sub_bang(int argc, VALUE *argv, VALUE self)
 {
   return og_oniguruma_oregexp_do_substitution_safe(self, argc, argv, 0, 1);
@@ -625,7 +583,7 @@ og_oniguruma_oregexp_do_scan(og_ScanArgs *args)
   return matches;
 }
 
-VALUE
+static VALUE
 og_oniguruma_oregexp_scan(VALUE self, VALUE str)
 {
   OnigRegion *region = onig_region_new();
@@ -636,7 +594,7 @@ og_oniguruma_oregexp_scan(VALUE self, VALUE str)
     og_oniguruma_oregexp_do_cleanup, (VALUE)region);
 }
 
-VALUE
+static VALUE
 og_oniguruma_oregexp_casefold(VALUE self)
 {
   int options, ignore_case;
@@ -649,7 +607,7 @@ og_oniguruma_oregexp_casefold(VALUE self)
   return Qfalse;
 }
 
-VALUE
+static VALUE
 og_oniguruma_oregexp_operator_equality(VALUE self, VALUE rhs)
 {
   VALUE pattern, encoding, rhs_pattern, rhs_encoding;
@@ -669,7 +627,7 @@ og_oniguruma_oregexp_operator_equality(VALUE self, VALUE rhs)
   return Qfalse;
 }
 
-VALUE
+static VALUE
 og_oniguruma_oregexp_operator_identical(VALUE self, VALUE str)
 {
   VALUE match, args[2];
@@ -690,7 +648,7 @@ og_oniguruma_oregexp_operator_identical(VALUE self, VALUE str)
   return Qtrue;
 }
 
-VALUE
+static VALUE
 og_oniguruma_oregexp_operator_match(VALUE self, VALUE str)
 {
   VALUE match, args[2];
@@ -705,19 +663,19 @@ og_oniguruma_oregexp_operator_match(VALUE self, VALUE str)
   return INT2FIX(RMATCH(match)->regs->beg[0]);
 }
 
-VALUE
+static VALUE
 og_oniguruma_oregexp_kcode(VALUE self)
 {
   return rb_iv_get(self, "@encoding");
 }
 
-VALUE
+static VALUE
 og_oniguruma_oregexp_options(VALUE self)
 {
   return rb_iv_get(self, "@options");
 }
 
-VALUE
+static VALUE
 og_oniguruma_oregexp_source(VALUE self)
 {
   VALUE pattern = rb_iv_get(self, "@pattern");
@@ -725,7 +683,7 @@ og_oniguruma_oregexp_source(VALUE self)
   return pattern;
 }
 
-VALUE
+static VALUE
 og_oniguruma_oregexp_to_s(VALUE self)
 {
   int options;
@@ -761,7 +719,7 @@ og_oniguruma_oregexp_to_s(VALUE self)
   return rb_str_concat(str, rb_iv_get(self, "@pattern"));
 }
 
-VALUE
+static VALUE
 og_oniguruma_oregexp_inspect(VALUE self)
 {
   int options;
@@ -782,4 +740,45 @@ og_oniguruma_oregexp_inspect(VALUE self)
     rb_str_cat(str, "x", 1);
   
   return str;
+}
+
+void
+Init_oniguruma_oregexp(VALUE parent)
+{
+  VALUE og_cOniguruma_ORegexp_Singleton;
+  
+  og_cOniguruma_ORegexp = rb_define_class_under(parent, "ORegexp", rb_cObject);
+  rb_define_alloc_func(og_cOniguruma_ORegexp, og_oniguruma_oregexp_alloc);
+  
+  /* Now add the methods to the class */
+  rb_define_singleton_method(og_cOniguruma_ORegexp, "escape",     og_oniguruma_oregexp_escape,      -1);
+  rb_define_singleton_method(og_cOniguruma_ORegexp, "last_match", og_oniguruma_oregexp_last_match,  -1);
+  
+  /* Define Instance Methods */
+  rb_define_method(og_cOniguruma_ORegexp, "initialize", og_oniguruma_oregexp_initialize,            -1);
+  rb_define_method(og_cOniguruma_ORegexp, "match",      og_oniguruma_oregexp_match,                 -1);
+  rb_define_method(og_cOniguruma_ORegexp, "=~",         og_oniguruma_oregexp_operator_match,         1);
+  rb_define_method(og_cOniguruma_ORegexp, "==",         og_oniguruma_oregexp_operator_equality,      1);
+  rb_define_method(og_cOniguruma_ORegexp, "===",        og_oniguruma_oregexp_operator_identical,     1);
+  rb_define_method(og_cOniguruma_ORegexp, "sub",        og_oniguruma_oregexp_sub,                   -1);
+  rb_define_method(og_cOniguruma_ORegexp, "sub!",       og_oniguruma_oregexp_sub_bang,              -1);
+  rb_define_method(og_cOniguruma_ORegexp, "gsub",       og_oniguruma_oregexp_gsub,                  -1);
+  rb_define_method(og_cOniguruma_ORegexp, "gsub!",      og_oniguruma_oregexp_gsub_bang,             -1);
+  rb_define_method(og_cOniguruma_ORegexp, "scan",       og_oniguruma_oregexp_scan,                   1);
+  rb_define_method(og_cOniguruma_ORegexp, "casefold?",  og_oniguruma_oregexp_casefold,               0);
+  rb_define_method(og_cOniguruma_ORegexp, "kcode",      og_oniguruma_oregexp_kcode,                  0);
+  rb_define_method(og_cOniguruma_ORegexp, "options",    og_oniguruma_oregexp_options,                0);
+  rb_define_method(og_cOniguruma_ORegexp, "source",     og_oniguruma_oregexp_source,                 0);
+  rb_define_method(og_cOniguruma_ORegexp, "inspect",    og_oniguruma_oregexp_inspect,                0);
+  rb_define_method(og_cOniguruma_ORegexp, "to_s",       og_oniguruma_oregexp_to_s,                   0);
+  
+  /* Define Aliases */
+  /* Instance method aliases */
+  rb_define_alias(og_cOniguruma_ORegexp, "eql?", "==");
+  rb_define_alias(og_cOniguruma_ORegexp, "match_all", "scan");
+  
+  /* Class method aliases */
+  og_cOniguruma_ORegexp_Singleton = rb_singleton_class(og_cOniguruma_ORegexp);
+  rb_define_alias(og_cOniguruma_ORegexp_Singleton, "compile", "new");
+  rb_define_alias(og_cOniguruma_ORegexp_Singleton, "escape", "quote");
 }

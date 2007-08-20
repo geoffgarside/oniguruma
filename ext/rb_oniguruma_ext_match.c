@@ -1,5 +1,5 @@
 #include <ruby.h>
-#include "rb_oniguruma_core_ext.h"
+#include "rb_oniguruma_ext.h"
 
 static VALUE
 og_oniguruma_match_data_to_index(VALUE self, VALUE sym)

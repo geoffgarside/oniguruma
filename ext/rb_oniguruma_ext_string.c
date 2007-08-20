@@ -1,5 +1,5 @@
 #include <ruby.h>
-#include "rb_oniguruma_core_ext.h"
+#include "rb_oniguruma_ext.h"
 
 static VALUE
 og_oniguruma_string_ogsub(int argc, VALUE *argv, VALUE self)

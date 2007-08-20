@@ -9,7 +9,7 @@ Init_oniguruma()
   VALUE og_mOniguruma_Opt_Shortcuts;
   og_mOniguruma = rb_define_module("Oniguruma");
   
-  Init_oniguruma_oregexp();
+  Init_oniguruma_oregexp(og_mOniguruma);
   Init_oniguruma_string_ext();
   Init_oniguruma_match_data_ext();
   
