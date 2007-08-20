@@ -1,6 +1,7 @@
 require 'mkmf'
-$CFLAGS='-I/usr/local/include -Wall'
-$LDFLAGS='-L/usr/local/lib'
+Config::MAKEFILE_CONFIG["CFLAGS"] << ' -I/usr/local/include -Wall'
+Config::MAKEFILE_CONFIG["LDFLAGS"] <<' -L/usr/local/lib'
 
+init_mkmf
 have_library('onig')
 create_makefile('oniguruma')
