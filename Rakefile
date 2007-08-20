@@ -19,9 +19,9 @@ end
 include FileUtils
 require File.join(File.dirname(__FILE__), 'lib', 'oniguruma', 'version')
 
-AUTHOR = 'FIXME full name'  # can also be an array of Authors
-EMAIL = "FIXME email"
-DESCRIPTION = "description of gem"
+AUTHOR = 'Geoff Garside'  # can also be an array of Authors
+EMAIL = "geoff-rubygem@geoffgarside.co.uk"
+DESCRIPTION = "Provides an interface to the Oniguruma Regular expression engine."
 GEM_NAME = 'oniguruma' # what ppl will type to install your gem
 
 @config_file = "~/.rubyforge/user-config.yml"
@@ -79,7 +79,9 @@ hoe = Hoe.new(GEM_NAME, VERS) do |p|
   # == Optional
   p.changes = p.paragraphs_of("History.txt", 0..1).join("\n\n")
   #p.extra_deps = []     # An array of rubygem dependencies [name, version], e.g. [ ['active_support', '>= 1.3.1'] ]
-  #p.spec_extras = {}    # A hash of extra values to set in the gemspec.
+  p.spec_extras = Proc.new do |spec|    # A hash of extra values to set in the gemspec.
+    spec.extensions << 'ext/extconf.rb'
+  end
 end
 
 CHANGES = hoe.paragraphs_of('History.txt', 0..1).join("\n\n")
