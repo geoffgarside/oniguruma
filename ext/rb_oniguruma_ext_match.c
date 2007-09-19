@@ -120,7 +120,7 @@ og_oniguruma_match_offset(int argc, VALUE *argv, VALUE self)
 } while(0)
 
 static VALUE
-og_oniguruma_match_included(VALUE base)
+og_oniguruma_match_included(VALUE self, VALUE base)
 {
   // Alias [] to aref, so we can replace it better
   rb_define_alias(base, "aref", "[]");
