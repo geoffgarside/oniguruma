@@ -114,19 +114,21 @@ og_oniguruma_match_offset(int argc, VALUE *argv, VALUE self)
   return rb_funcall3(self, rb_intern("offset_without_oniguruma"), RARRAY(idx)->len, RARRAY(idx)->ptr);
 }
 
+#define alias_method_chain(obj, meth, with) do {      \
+  rb_define_alias(obj, meth "_without_" with, meth);  \
+  rb_define_alias(obj, meth, meth "_with_" with);     \
+} while(0)
+
 static VALUE
 og_oniguruma_match_included(VALUE base)
 {
-  rb_define_alias(base, "aref_without_oniguruma",    "[]");
-  rb_define_alias(base, "begin_without_oniguruma",   "begin");
-  rb_define_alias(base, "end_without_oniguruma",     "end");
-  rb_define_alias(base, "offset_without_oniguruma",  "offset");
+  // Alias [] to aref, so we can replace it better
+  rb_define_alias(base, "aref", "[]");
   
-  rb_define_alias(base, "aref",   "aref_with_oniguruma");
-  rb_define_alias(base, "[]",     "aref_with_oniguruma");
-  rb_define_alias(base, "begin",  "begin_with_oniguruma");
-  rb_define_alias(base, "end",    "end_with_oniguruma");
-  rb_define_alias(base, "offset", "offset_with_oniguruma");
+  alias_method_chain(base, "aref",    "oniguruma");
+  alias_method_chain(base, "begin",   "oniguruma");
+  alias_method_chain(base, "end",     "oniguruma");
+  alias_method_chain(base, "offset",  "oniguruma");
   
   return base;
 }
