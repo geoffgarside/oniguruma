@@ -136,7 +136,7 @@ og_oniguruma_match_included(VALUE self, VALUE base)
 void
 og_oniguruma_match_ext(VALUE og_mOniguruma_Extensions)
 {
-  VALUE og_mMatch, iargv[3];
+  VALUE og_mMatch, iargv[2];
   
   og_mMatch = rb_define_module_under(og_mOniguruma_Extensions, "Match");
   
@@ -150,9 +150,8 @@ og_oniguruma_match_ext(VALUE og_mOniguruma_Extensions)
   rb_define_method(og_mMatch, "end_with_oniguruma",      og_oniguruma_match_end,        -1);
   rb_define_method(og_mMatch, "offset_with_oniguruma",   og_oniguruma_match_offset,     -1);
   
-  iargv[0] = rb_intern("include");
-  iargv[1] = og_mMatch;
-  iargv[2] = (VALUE)NULL;
+  iargv[0] = og_mMatch;
+  iargv[1] = (VALUE)NULL;
   
-  rb_funcall3(rb_cMatch, rb_intern("send"), 2, iargv);
+  rb_funcall2(rb_cMatch, rb_intern("include"), 1, iargv);
 }
