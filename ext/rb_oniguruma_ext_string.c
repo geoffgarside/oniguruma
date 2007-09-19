@@ -1,4 +1,5 @@
 #include <ruby.h>
+#include <node.h>
 #include "rb_oniguruma_ext.h"
 
 typedef struct og_string_substitution_args {
@@ -68,7 +69,7 @@ og_oniguruma_string_do_substitution(VALUE self, char *method, int argc, VALUE *a
   if (rb_block_given_p()) {
     og_StringSubstitutionArgs_set(&fargs, oregexp, rb_intern(method), self);
     return rb_iterate(og_oniguruma_string_do_substitution_block, (VALUE)&fargs,
-      og_oniguruma_string_block_helper, arg);
+      og_oniguruma_string_block_helper, (VALUE)arg);
   } else {
     nargv[0] = self;
     nargv[1] = arg;
