@@ -2,7 +2,7 @@
 #include "rb_oniguruma_ext.h"
 
 static VALUE
-og_oniguruma_match_data_to_index(VALUE self, VALUE sym)
+og_oniguruma_match_to_index(VALUE self, VALUE sym)
 {
   VALUE named_captures = rb_iv_get(self, "@named_captures");
   
@@ -12,7 +12,7 @@ og_oniguruma_match_data_to_index(VALUE self, VALUE sym)
 }
 
 static VALUE
-og_oniguruma_match_data_aref(int argc, VALUE *argv, VALUE self)
+og_oniguruma_match_aref(int argc, VALUE *argv, VALUE self)
 {
   VALUE idx, first, k, nargv[2];
   
@@ -20,7 +20,7 @@ og_oniguruma_match_data_aref(int argc, VALUE *argv, VALUE self)
   
   first = rb_ary_entry(idx, 0);
   if (SYMBOL_P(first)) {
-    k = og_oniguruma_match_data_to_index(self, first);
+    k = og_oniguruma_match_to_index(self, first);
     if (!NIL_P(k)) {
       nargv[0] = k;
       nargv[1] = (VALUE)NULL;
@@ -34,7 +34,7 @@ og_oniguruma_match_data_aref(int argc, VALUE *argv, VALUE self)
 }
 
 static VALUE
-og_oniguruma_match_data_begin(int argc, VALUE *argv, VALUE self)
+og_oniguruma_match_begin(int argc, VALUE *argv, VALUE self)
 {
   VALUE idx, first, k, nargv[2];
   
@@ -42,7 +42,7 @@ og_oniguruma_match_data_begin(int argc, VALUE *argv, VALUE self)
   
   first = rb_ary_entry(idx, 0);
   if (SYMBOL_P(first)) {
-    k = og_oniguruma_match_data_to_index(self, first);
+    k = og_oniguruma_match_to_index(self, first);
     if (!NIL_P(k)) {
       nargv[0] = k;
       nargv[1] = (VALUE)NULL;
@@ -61,7 +61,7 @@ og_oniguruma_match_data_begin(int argc, VALUE *argv, VALUE self)
 }
 
 static VALUE
-og_oniguruma_match_data_end(int argc, VALUE *argv, VALUE self)
+og_oniguruma_match_end(int argc, VALUE *argv, VALUE self)
 {
   VALUE idx, first, k, nargv[2];
   
@@ -69,7 +69,7 @@ og_oniguruma_match_data_end(int argc, VALUE *argv, VALUE self)
   
   first = rb_ary_entry(idx, 0);
   if (SYMBOL_P(first)) {
-    k = og_oniguruma_match_data_to_index(self, first);
+    k = og_oniguruma_match_to_index(self, first);
     if (!NIL_P(k)) {
       nargv[0] = k;
       nargv[1] = (VALUE)NULL;
@@ -88,7 +88,7 @@ og_oniguruma_match_data_end(int argc, VALUE *argv, VALUE self)
 }
 
 static VALUE
-og_oniguruma_match_data_offset(int argc, VALUE *argv, VALUE self)
+og_oniguruma_match_offset(int argc, VALUE *argv, VALUE self)
 {
   VALUE idx, first, k, nargv[2];
   
@@ -96,7 +96,7 @@ og_oniguruma_match_data_offset(int argc, VALUE *argv, VALUE self)
   
   first = rb_ary_entry(idx, 0);
   if (SYMBOL_P(first)) {
-    k = og_oniguruma_match_data_to_index(self, first);
+    k = og_oniguruma_match_to_index(self, first);
     if (!NIL_P(k)) {
       nargv[0] = k;
       nargv[1] = (VALUE)NULL;
@@ -114,21 +114,38 @@ og_oniguruma_match_data_offset(int argc, VALUE *argv, VALUE self)
   return rb_funcall3(self, rb_intern("offset_without_oniguruma"), RARRAY(idx)->len, RARRAY(idx)->ptr);
 }
 
-void
-og_oniguruma_match_data_ext()
+static VALUE
+og_oniguruma_match_included(VALUE base)
 {
-  /* Alias Existing Methods */
-  /*              Class      New Name                   Original Name */
-  rb_define_alias(rb_cMatch, "aref_without_oniguruma",    "[]");
-  rb_define_alias(rb_cMatch, "begin_without_oniguruma",   "begin");
-  rb_define_alias(rb_cMatch, "end_without_oniguruma",     "end");
-  rb_define_alias(rb_cMatch, "offset_without_oniguruma",  "offset");
+  rb_define_alias(base, "aref_without_oniguruma",    "[]");
+  rb_define_alias(base, "begin_without_oniguruma",   "begin");
+  rb_define_alias(base, "end_without_oniguruma",     "end");
+  rb_define_alias(base, "offset_without_oniguruma",  "offset");
+  
+  rb_define_alias(base, "aref",   "aref_with_oniguruma");
+  rb_define_alias(base, "[]",     "aref_with_oniguruma");
+  rb_define_alias(base, "begin",  "begin_with_oniguruma");
+  rb_define_alias(base, "end",    "end_with_oniguruma");
+  rb_define_alias(base, "offset", "offset_with_oniguruma");
+  
+  return base;
+}
+
+void
+og_oniguruma_match_ext(VALUE og_mOniguruma_Extensions)
+{
+  VALUE og_mMatch = 
+    rb_define_module_under(og_mOniguruma_Extensions, "Match");
+  
+  rb_define_singleton_method(og_mMatch, "included", og_oniguruma_match_included, 1);
   
   /* Define the replacements */
-  /*               Class      Method      Handler Function                  Args */
-  rb_define_method(rb_cMatch, "to_index", og_oniguruma_match_data_to_index,    1);
-  rb_define_method(rb_cMatch, "[]",       og_oniguruma_match_data_aref,       -1);
-  rb_define_method(rb_cMatch, "begin",    og_oniguruma_match_data_begin,      -1);
-  rb_define_method(rb_cMatch, "end",      og_oniguruma_match_data_end,        -1);
-  rb_define_method(rb_cMatch, "offset",   og_oniguruma_match_data_offset,     -1);
+  /*               Class      Method                     Handler Function             Args */
+  rb_define_method(og_mMatch, "to_index",                og_oniguruma_match_to_index,    1);
+  rb_define_method(og_mMatch, "aref_with_oniguruma",     og_oniguruma_match_aref,       -1);
+  rb_define_method(og_mMatch, "begin_with_oniguruma",    og_oniguruma_match_begin,      -1);
+  rb_define_method(og_mMatch, "end_with_oniguruma",      og_oniguruma_match_end,        -1);
+  rb_define_method(og_mMatch, "offset_with_oniguruma",   og_oniguruma_match_offset,     -1);
+  
+  rb_include_module(rb_cMatch, og_mMatch);
 }

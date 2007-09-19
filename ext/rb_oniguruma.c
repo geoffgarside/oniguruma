@@ -1,21 +1,33 @@
 #include <ruby.h>
 #include <oniguruma.h>
 #include "rb_oniguruma.h"
+#include "rb_oniguruma_version.h"
+
+// TODO: Add an Oniguruma#inject method which injects ORegexp into
+// the base namespace overriding the existing Regexp class.
+// Would also need a method of handling Kernel./regexp/ calls.
 
 void
 Init_oniguruma()
 {
-  VALUE og_mOniguruma, og_mOniguruma_Opt_Shortcuts;
+  VALUE og_mOniguruma,
+    og_mOniguruma_Version,
+    og_mOniguruma_Extension,
+    og_mOniguruma_Opt_Shortcuts;
+  
   og_mOniguruma = rb_define_module(OG_M_ONIGURUMA);
+  og_mOniguruma_Version = rb_define_module_under(og_mOniguruma, "VERSION");
+  rb_define_const(og_mOniguruma_Version, "ENGINE",
+    rb_str_new2(onig_version()));
+  rb_define_const(og_mOniguruma_Version, "STRING",
+    og_oniguruma_gem_version());
+  
+  og_mOniguruma_Extension = rb_define_module_under(og_mOniguruma, OG_M_EXTENSIONS);
   
   og_oniguruma_oregexp(og_mOniguruma, OG_C_OREGEXP);
   
-  og_oniguruma_string_ext();
-  og_oniguruma_match_data_ext();
-  
-  /* Module Constants */
-  rb_define_const(og_mOniguruma, "VERSION", 
-    rb_str_new2(onig_version()));
+  og_oniguruma_string_ext(og_mOniguruma_Extension);
+  og_oniguruma_match_ext(og_mOniguruma_Extension);
   
   /* Encodings */
   rb_define_const(og_mOniguruma, "ENCODING_UNDEF",            INT2FIX(0));
@@ -142,4 +154,18 @@ og_oniguruma_extract_syntax(VALUE syntax)
     case 8:  return ONIG_SYNTAX_RUBY;
     default: return ONIG_SYNTAX_DEFAULT;
   }
+}
+
+VALUE
+og_oniguruma_gem_version()
+{
+  VALUE version = rb_str_new2("");
+  
+  rb_str_concat(version, rb_funcall(INT2FIX(OG_VERSION_MAJOR), rb_intern("to_s"), 0));
+  rb_str_cat(version, ".", 1);
+  rb_str_concat(version, rb_funcall(INT2FIX(OG_VERSION_MINOR), rb_intern("to_s"), 0));
+  rb_str_cat(version, ".", 1);
+  rb_str_concat(version, rb_funcall(INT2FIX(OG_VERSION_TEENY), rb_intern("to_s"), 0));
+  
+  return version;
 }

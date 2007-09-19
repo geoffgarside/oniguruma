@@ -1,1 +1,5 @@
 --colour
+--format
+specdoc
+--loadby
+mtime

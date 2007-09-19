@@ -16,9 +16,6 @@ rescue LoadError
   exit
 end
 
-include FileUtils
-require File.join(File.dirname(__FILE__), 'lib', 'oniguruma', 'version')
-
 AUTHOR = 'Geoff Garside'  # can also be an array of Authors
 EMAIL = "geoff-rubygem@geoffgarside.co.uk"
 DESCRIPTION = "Provides an interface to the Oniguruma Regular expression engine."
@@ -42,6 +39,21 @@ Run 'rubyforge setup' to prepare your env for access to Rubyforge
   @rubyforge_username ||= @config["username"]
 end
 
+def get_version
+  File.readlines('ext/rb_oniguruma_version.h').collect do |line|
+    if line =~ /OG_VERSION_(.*)/
+      case $1
+      when /MAJOR(.*)/
+        $1.to_i
+      when /MINOR(.*)/
+        $1.to_i
+      when /TEENY(.*)/
+        $1.to_i
+      end
+    end
+  end.compact.join('.')
+end
+
 RUBYFORGE_PROJECT = 'oniguruma' # The unix name for your project
 HOMEPATH = "http://#{RUBYFORGE_PROJECT}.rubyforge.org"
 DOWNLOAD_PATH = "http://rubyforge.org/projects/#{RUBYFORGE_PROJECT}"
@@ -50,7 +62,8 @@ NAME = "oniguruma"
 REV = nil 
 # UNCOMMENT IF REQUIRED: 
 # REV = `svn info`.each {|line| if line =~ /^Revision:/ then k,v = line.split(': '); break v.chomp; else next; end} rescue nil
-VERS = Oniguruma::VERSION::STRING + (REV ? ".#{REV}" : "")
+# VERS = Oniguruma::VERSION::STRING + (REV ? ".#{REV}" : "")
+VERS = get_version + (REV ? ".#{REV}" : "")
 CLEAN.include ['**/.*.sw?', '*.gem', '.config', '**/.DS_Store']
 RDOC_OPTS = ['--quiet', '--title', 'oniguruma documentation',
     "--opname", "index.html",
@@ -79,9 +92,7 @@ hoe = Hoe.new(GEM_NAME, VERS) do |p|
   # == Optional
   p.changes = p.paragraphs_of("History.txt", 0..1).join("\n\n")
   #p.extra_deps = []     # An array of rubygem dependencies [name, version], e.g. [ ['active_support', '>= 1.3.1'] ]
-  p.spec_extras = Proc.new do |spec|    # A hash of extra values to set in the gemspec.
-    spec.extensions << 'ext/extconf.rb'
-  end
+  p.spec_extras = {:extensions => ['ext/extconf.rb']}
 end
 
 CHANGES = hoe.paragraphs_of('History.txt', 0..1).join("\n\n")
@@ -137,4 +148,34 @@ end
 
 desc "Default task is to run specs"
 task :default => :spec
+task :spec => :build_extension
 
+EXTENSION = 'ext/oniguruma.so'
+FileList['ext/*.[ch]'].each do |src|
+  file EXTENSION => src
+end
+
+file EXTENSION => 'ext/Makefile' do
+  Dir.chdir('ext') do
+    sh 'make'
+    cp 'oniguruma.so', '../lib/oniguruma.so'
+  end
+end
+
+file 'ext/Makefile' => 'ext/extconf.rb' do
+  Dir.chdir('ext') do
+    sh 'ruby extconf.rb'
+  end
+end
+
+desc "Build the C extension"
+task :build_extension => EXTENSION
+
+task :clean_extension do
+  Dir.chdir('ext') do
+    sh 'make clean'
+    sh 'rm mkmf.log Makefile'
+  end
+end
+
+task :rebuild_extension => [:clean_extension, :build_extension]

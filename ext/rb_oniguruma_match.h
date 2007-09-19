@@ -21,7 +21,7 @@ typedef struct og_callback_packet {
 } og_CallbackPacket;
 
 /* Our Match methods */
-VALUE og_oniguruma_oregexp_match_initialize();
+VALUE og_oniguruma_match_initialize(OnigRegion *region, VALUE string);
 
 /* Oniguruma foreach callback */
 int og_oniguruma_name_callback(UChar *name, UChar *name_end, 

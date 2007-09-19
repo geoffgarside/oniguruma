@@ -15,7 +15,7 @@ og_oniguruma_oregexp_match_alloc()
 }
 
 VALUE
-og_oniguruma_oregexp_match_initialize(OnigRegion *region, VALUE string)
+og_oniguruma_match_initialize(OnigRegion *region, VALUE string)
 {
   int i;
   VALUE match = og_oniguruma_oregexp_match_alloc();

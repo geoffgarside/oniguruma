@@ -1,0 +1,8 @@
+rb_oniguruma.o: rb_oniguruma.c rb_oniguruma.h rb_oniguruma_version.h
+rb_oniguruma_ext_match.o: rb_oniguruma_ext_match.c rb_oniguruma_ext.h \
+  rb_oniguruma.h
+rb_oniguruma_ext_string.o: rb_oniguruma_ext_string.c rb_oniguruma_ext.h \
+  rb_oniguruma.h
+rb_oniguruma_match.o: rb_oniguruma_match.c rb_oniguruma_match.h
+rb_oniguruma_oregexp.o: rb_oniguruma_oregexp.c rb_oniguruma.h \
+  rb_oniguruma_match.h rb_oniguruma_struct_args.h
