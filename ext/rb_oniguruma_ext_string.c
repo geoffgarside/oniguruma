@@ -28,7 +28,7 @@ og_oniguruma_string_do_substitution_block(og_StringSubstitutionArgs *args)
 
 // Taken from examining some output from rb2cx
 static VALUE
-og_oniguruma_string_block_helper(VALUE values, VALUE proc, VALUE self)
+og_oniguruma_string_block_helper(VALUE bl_val, VALUE proc, VALUE self)
 {
   int argc;
   VALUE *argv, tmp;
