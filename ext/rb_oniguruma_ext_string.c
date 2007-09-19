@@ -29,12 +29,16 @@ og_oniguruma_string_do_substitution_block(VALUE val)
 
 // The block will be yielded a MatchData object or nil
 // Always one object at a time
+// The value passed to the proc, should be the match value
 static VALUE
 og_oniguruma_string_block_helper(VALUE match, VALUE proc, VALUE self)
 {
-  VALUE argv[2];
+  VALUE argv[2], margv[2];
   
-  argv[0] = match;
+  margv[0] = INT2FIX(0);
+  margv[1] = (VALUE)NULL;
+    
+  argv[0] = rb_funcall3(match, rb_intern("[]"), 1, margv);
   argv[1] = (VALUE)NULL;
   
   return rb_funcall3(proc, rb_intern("call"), 1, argv);
