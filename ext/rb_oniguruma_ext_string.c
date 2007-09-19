@@ -27,29 +27,17 @@ og_oniguruma_string_do_substitution_block(VALUE val)
   return rb_funcall3(args->oregexp, args->method, 1, argv);
 }
 
-// Taken from examining some output from rb2cx
+// The block will be yielded a MatchData object or nil
+// Always one object at a time
 static VALUE
-og_oniguruma_string_block_helper(VALUE bl_val, VALUE proc, VALUE self)
+og_oniguruma_string_block_helper(VALUE match, VALUE proc, VALUE self)
 {
-  int argc;
-  VALUE *argv, tmp;
+  VALUE argv[2];
   
-  if (ruby_current_node->nd_state != 1) {
-    if (bl_val == Qundef)
-      bl_val = rb_ary_new2(0);
-    else {
-      tmp = rb_check_array_type(bl_val);
-      bl_val = (NIL_P(tmp) ? rb_ary_new3(1, bl_val) : tmp);
-    }
-  }
-  if (RARRAY(bl_val)->len == 0)
-    return rb_funcall3(proc, rb_intern("call"), 0, 0);
-  else {
-    argc = RARRAY(bl_val)->len;
-    argv = ALLOCA_N(VALUE, argc);
-    MEMCPY(argv, RARRAY(bl_val)->ptr, VALUE, argc);
-    return rb_funcall3(proc, rb_intern("call"), argc, argv);
-  }
+  argv[0] = match;
+  argv[1] = (VALUE)NULL;
+  
+  return rb_funcall3(proc, rb_intern("call"), 1, argv);
 }
 
 static VALUE
