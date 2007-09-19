@@ -136,8 +136,9 @@ og_oniguruma_match_included(VALUE self, VALUE base)
 void
 og_oniguruma_match_ext(VALUE og_mOniguruma_Extensions)
 {
-  VALUE og_mMatch = 
-    rb_define_module_under(og_mOniguruma_Extensions, "Match");
+  VALUE og_mMatch, iargv[3];
+  
+  og_mMatch = rb_define_module_under(og_mOniguruma_Extensions, "Match");
   
   rb_define_singleton_method(og_mMatch, "included", og_oniguruma_match_included, 1);
   
@@ -149,5 +150,9 @@ og_oniguruma_match_ext(VALUE og_mOniguruma_Extensions)
   rb_define_method(og_mMatch, "end_with_oniguruma",      og_oniguruma_match_end,        -1);
   rb_define_method(og_mMatch, "offset_with_oniguruma",   og_oniguruma_match_offset,     -1);
   
-  rb_include_module(rb_cMatch, og_mMatch);
+  iargv[0] = rb_intern("include");
+  iargv[1] = og_mMatch;
+  iargv[2] = (VALUE)NULL;
+  
+  rb_funcall3(rb_cMatch, rb_intern("send"), 2, iargv);
 }
