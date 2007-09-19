@@ -16,9 +16,10 @@ typedef struct og_string_substitution_args {
 } while(0)
 
 static VALUE
-og_oniguruma_string_do_substitution_block(og_StringSubstitutionArgs *args)
+og_oniguruma_string_do_substitution_block(VALUE val)
 {
   VALUE argv[2];
+  og_StringSubstitutionArgs *args = (og_StringSubstitutionArgs *)val;
   
   argv[0] = args->string;
   argv[1] = (VALUE)NULL;
