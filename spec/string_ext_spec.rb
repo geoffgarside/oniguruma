@@ -30,7 +30,7 @@ describe String, "Oniguruma extension" do
   
   it "should sub! with block and equal '104 ello'" do
     do_sub_block(:osub!) {|s| s[0].to_s + ' ' }
-    @string.should_not eql('104 ello')
+    @string.should eql('104 ello')
   end
   
   it "should gsub and return h*ll*" do
