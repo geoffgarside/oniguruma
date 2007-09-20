@@ -364,11 +364,15 @@ og_oniguruma_oregexp_do_replacement(VALUE self, VALUE buffer, VALUE str, VALUE r
           }
           
           break;
-          
-        case '<': // named group reference
+        
+        //case 'k': // Oniguruma style named group reference
+          // Eat the 'k' code point and let it fall through to the '<'
+          //og_oniguruma_oregexp_get_code_point(code_point, code_point_len, encoding, replacement, position);
+          //position += code_point_len;
+        case '<': // Oniguruma Gem named group reference (for compatibility)
           named_group_end = named_group_begin = named_group_pos = position + code_point_len;
           
-          while (named_group_pos < subj_len)
+          while (named_group_pos < RSTRING(replacement)->len)
           {
             og_oniguruma_oregexp_get_code_point(code_point, code_point_len, encoding, replacement, named_group_pos);
             named_group_pos += code_point_len;
@@ -381,8 +385,8 @@ og_oniguruma_oregexp_do_replacement(VALUE self, VALUE buffer, VALUE str, VALUE r
           }
           
           if (code_point != '>' || named_group_end == named_group_begin) { // place backslash and '<'
-            rb_str_buf_cat(buffer, RSTRING(replacement)->ptr+(position-previous_code_point_len),
-              previous_code_point_len+code_point_len);
+            rb_str_buf_cat(buffer, RSTRING(replacement)->ptr + (position - previous_code_point_len),
+              previous_code_point_len + code_point_len);
             position += code_point_len;
           } else { // lookup for group and subst for that value
             group = onig_name_to_backref_number(oregexp->reg, 

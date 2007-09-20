@@ -139,7 +139,6 @@ og_oniguruma_match_ext(VALUE og_mOniguruma_Extensions)
   VALUE og_mMatch, iargv[2];
   
   og_mMatch = rb_define_module_under(og_mOniguruma_Extensions, "Match");
-  
   rb_define_singleton_method(og_mMatch, "included", og_oniguruma_match_included, 1);
   
   /* Define the replacements */
