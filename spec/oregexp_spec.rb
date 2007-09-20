@@ -328,7 +328,7 @@ end
 
 describe Oniguruma::ORegexp, ".sub (Named Back-references)" do
   it "should handle named backrefs" do
-    o = Oniguruma::ORegexp.new('(?<pre>\w+)?\d+(?<after>\w+)')
+    o = Oniguruma::ORegexp.new('(?<pre>\w+?)\d+(?<after>\w+)')
     o.sub('abc123def', ' \<after>123\<pre> ').should eql(' def123abc ')
   end
   
