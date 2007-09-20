@@ -53,10 +53,8 @@ og_oniguruma_string_do_substitution(VALUE self, char *method, int argc, VALUE *a
   
   og_ObtainConstants;
   if (rb_block_given_p()) {
-    note("Block was given to the string sub func");
     rb_scan_args(argc, argv, "1&", &re, &arg);
   } else {
-    note("No block given to string sub func");
     rb_scan_args(argc, argv, "2", &re, &arg);
   }
   
