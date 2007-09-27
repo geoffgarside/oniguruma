@@ -113,13 +113,60 @@ describe Oniguruma, "constants" do
     Oniguruma.should have_constant("ENCODING_SJIS")
   end
   it "should have 'ENCODING_KOI8'" do
-    Oniguruma.should have_constant("ENCODING_KOI8")
+    if Oniguruma::VERSION::ENGINE.to_i != 4
+      Oniguruma.should have_constant("ENCODING_KOI8")
+    else
+      Oniguruma.should_not have_constant("ENCODING_KOI8")
+    end
   end
   it "should have 'ENCODING_KOI8_R'" do
     Oniguruma.should have_constant("ENCODING_KOI8_R")
   end
   it "should have 'ENCODING_BIG5'" do
     Oniguruma.should have_constant("ENCODING_BIG5")
+  end
+  it "should have 'ENCODING_UTF16_BE' for Engine >= 4" do
+    if Oniguruma::VERSION::ENGINE.to_i >= 4
+      Oniguruma.should have_constant("ENCODING_UTF16_BE")
+    else
+      Oniguruma.should_not have_constant("ENCODING_UTF16_BE")
+    end
+  end
+  it "should have 'ENCODING_UTF16_BE' for Engine >= 4" do
+    if Oniguruma::VERSION::ENGINE.to_i >= 4
+      Oniguruma.should have_constant("ENCODING_UTF16_LE")
+    else
+      Oniguruma.should_not have_constant("ENCODING_UTF16_LE")
+    end
+  end
+  it "should have 'ENCODING_UTF16_BE' for Engine >= 4" do
+    if Oniguruma::VERSION::ENGINE.to_i >= 4
+      Oniguruma.should have_constant("ENCODING_UTF32_BE")
+    else
+      Oniguruma.should_not have_constant("ENCODING_UTF32_BE")
+    end
+  end
+  it "should have 'ENCODING_UTF16_BE' for Engine >= 4" do
+    if Oniguruma::VERSION::ENGINE.to_i >= 4
+      Oniguruma.should have_constant("ENCODING_UTF32_LE")
+    else
+      Oniguruma.should_not have_constant("ENCODING_UTF32_LE")
+    end
+  end
+  it "should have 'ENCODING_UTF16_BE' for Engine >= 4" do
+    if Oniguruma::VERSION::ENGINE.to_i >= 4
+      Oniguruma.should have_constant("ENCODING_GB18030")
+    else
+      Oniguruma.should_not have_constant("ENCODING_GB18030")
+    end
+  end
+  
+  it "should have 'ENCODING_CP1251' for Engine >= 5" do
+    if Oniguruma::VERSION::ENGINE.to_i >= 5
+      Oniguruma.should have_constant("ENCODING_CP1251")
+    else
+      Oniguruma.should_not have_constant("ENCODING_CP1251")
+    end
   end
   
   it "should have 'SYNTAX_DEFAULT'" do
@@ -148,6 +195,20 @@ describe Oniguruma, "constants" do
   end
   it "should have 'SYNTAX_RUBY'" do
     Oniguruma.should have_constant("SYNTAX_RUBY")
+  end
+  it "should have 'SYNTAX_PERL_NG' for Engine >= 4" do
+    if Oniguruma::VERSION::ENGINE.to_i >= 4
+      Oniguruma.should have_constant("SYNTAX_PERL_NG")
+    else
+      Oniguruma.should_not have_constant("SYNTAX_PERL_NG")
+    end
+  end
+  it "should have 'ONIG_SYNTAX_ASIS' for Engine >= 4" do
+    if Oniguruma::VERSION::ENGINE.to_i >= 4
+      Oniguruma.should have_constant("ONIG_SYNTAX_ASIS")
+    else
+      Oniguruma.should_not have_constant("ONIG_SYNTAX_ASIS")
+    end
   end
   
   it "should have 'OPTION_DEFAULT'" do
