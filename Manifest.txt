@@ -3,6 +3,7 @@ License.txt
 Manifest.txt
 README.txt
 Rakefile
+ext/depend
 ext/extconf.rb
 ext/rb_oniguruma.c
 ext/rb_oniguruma.h
