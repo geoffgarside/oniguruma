@@ -203,11 +203,11 @@ describe Oniguruma, "constants" do
       Oniguruma.should_not have_constant("SYNTAX_PERL_NG")
     end
   end
-  it "should have 'ONIG_SYNTAX_ASIS' for Engine >= 4" do
+  it "should have 'SYNTAX_ASIS' for Engine >= 4" do
     if Oniguruma::VERSION::ENGINE.to_i >= 4
-      Oniguruma.should have_constant("ONIG_SYNTAX_ASIS")
+      Oniguruma.should have_constant("SYNTAX_ASIS")
     else
-      Oniguruma.should_not have_constant("ONIG_SYNTAX_ASIS")
+      Oniguruma.should_not have_constant("SYNTAX_ASIS")
     end
   end
   
