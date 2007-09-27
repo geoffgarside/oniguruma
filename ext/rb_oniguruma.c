@@ -53,9 +53,21 @@ Init_oniguruma()
   rb_define_const(og_mOniguruma, "ENCODING_EUC_KR",           INT2FIX(20));
   rb_define_const(og_mOniguruma, "ENCODING_EUC_CN",           INT2FIX(21));
   rb_define_const(og_mOniguruma, "ENCODING_SJIS",             INT2FIX(22));
+#if ONIGURUMA_VERSION_MAJOR != 4
   rb_define_const(og_mOniguruma, "ENCODING_KOI8",             INT2FIX(23));
+#endif
   rb_define_const(og_mOniguruma, "ENCODING_KOI8_R",           INT2FIX(24));
   rb_define_const(og_mOniguruma, "ENCODING_BIG5",             INT2FIX(25));
+#if ONIGURUMA_VERSION_MAJOR >= 4
+  rb_define_const(og_mOniguruma, "ENCODING_UTF16_BE",         INT2FIX(26));
+  rb_define_const(og_mOniguruma, "ENCODING_UTF16_LE",         INT2FIX(27));
+  rb_define_const(og_mOniguruma, "ENCODING_UTF32_BE",         INT2FIX(28));
+  rb_define_const(og_mOniguruma, "ENCODING_UTF32_LE",         INT2FIX(29));
+  rb_define_const(og_mOniguruma, "ENCODING_GB18030",          INT2FIX(30));
+#endif
+#if ONIGURUMA_VERSION_MAJOR >= 5
+  rb_define_const(og_mOniguruma, "ENCODING_CP1251",           INT2FIX(31));
+#endif
   
   /* Syntaxes */
   rb_define_const(og_mOniguruma, "SYNTAX_DEFAULT",            INT2FIX(0));
@@ -67,6 +79,10 @@ Init_oniguruma()
   rb_define_const(og_mOniguruma, "SYNTAX_JAVA",               INT2FIX(6));
   rb_define_const(og_mOniguruma, "SYNTAX_PERL",               INT2FIX(7));
   rb_define_const(og_mOniguruma, "SYNTAX_RUBY",               INT2FIX(8));
+#if ONIGURUMA_VERSION_MAJOR >= 4
+  rb_define_const(og_mOniguruma, "SYNTAX_PERL_NG",            INT2FIX(9));
+  rb_define_const(og_mOniguruma, "SYNTAX_ASIS",               INT2FIX(10));
+#endif
   
   /* Options */                                                            /* Modifier */
   rb_define_const(og_mOniguruma, "OPTION_DEFAULT",            INT2FIX(0));
@@ -131,9 +147,21 @@ og_oniguruma_extract_encoding(VALUE encoding)
     case 20: return ONIG_ENCODING_EUC_KR;
     case 21: return ONIG_ENCODING_EUC_CN;
     case 22: return ONIG_ENCODING_SJIS;
+#if ONIGURUMA_VERSION_MAJOR != 4
     case 23: return ONIG_ENCODING_KOI8;
+#endif
     case 24: return ONIG_ENCODING_KOI8_R;
     case 25: return ONIG_ENCODING_BIG5;
+#if ONIGURUMA_VERSION_MAJOR >= 4
+    case 26: return ONIG_ENCODING_UTF16_BE;
+    case 27: return ONIG_ENCODING_UTF16_LE;
+    case 28: return ONIG_ENCODING_UTF32_BE;
+    case 29: return ONIG_ENCODING_UTF32_LE;
+    case 30: return ONIG_ENCODING_GB18030;
+#endif
+#if ONIGURUMA_VERSION_MAJOR >= 5
+    case 31: return ONIG_ENCODING_CP1251;
+#endif
     default: return ONIG_ENCODING_UNDEF;
   }
 }
@@ -152,6 +180,10 @@ og_oniguruma_extract_syntax(VALUE syntax)
     case 6:  return ONIG_SYNTAX_JAVA;
     case 7:  return ONIG_SYNTAX_PERL;
     case 8:  return ONIG_SYNTAX_RUBY;
+#if ONIGURUMA_VERSION_MAJOR >= 4
+    case 9:  return ONIG_SYNTAX_PERL_NG;
+    case 10: return ONIG_SYNTAX_ASIS;
+#endif
     default: return ONIG_SYNTAX_DEFAULT;
   }
 }
