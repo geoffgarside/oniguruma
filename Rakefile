@@ -148,34 +148,39 @@ end
 
 desc "Default task is to run specs"
 task :default => :spec
-task :spec => :build_extension
+task :spec => "extension:build"
 
-EXTENSION = 'ext/oniguruma.so'
-FileList['ext/*.[ch]'].each do |src|
-  file EXTENSION => src
-end
-
-file EXTENSION => 'ext/Makefile' do
-  Dir.chdir('ext') do
-    sh 'make'
-    cp 'oniguruma.so', '../lib/oniguruma.so'
+namespace :extension do
+  EXTENSION = 'ext/oniguruma.so'
+  FileList['ext/*.[ch]'].each do |src|
+    file EXTENSION => src
   end
-end
 
-file 'ext/Makefile' => 'ext/extconf.rb' do
-  Dir.chdir('ext') do
-    sh 'ruby extconf.rb'
+  file EXTENSION => 'ext/Makefile' do
+    Dir.chdir('ext') do
+      sh 'make'
+      cp 'oniguruma.so', '../lib/oniguruma.so'
+    end
   end
-end
 
-desc "Build the C extension"
-task :build_extension => EXTENSION
-
-task :clean_extension do
-  Dir.chdir('ext') do
-    sh 'make clean'
-    sh 'rm mkmf.log Makefile'
+  file 'ext/Makefile' => 'ext/extconf.rb' do
+    Dir.chdir('ext') do
+      sh 'ruby extconf.rb'
+    end
   end
+
+  desc "Build the C extension"
+  task :build => EXTENSION
+  
+  desc "Cleans the extension and extconf.rb products"
+  task :clean do
+    Dir.chdir('ext') do
+      sh 'make clean'
+      sh 'rm mkmf.log Makefile'
+    end
+  end
+  
+  desc "Cleans then rebuilds the extension"
+  task :rebuild => [:clean, :build]
 end
 
-task :rebuild_extension => [:clean_extension, :build_extension]
