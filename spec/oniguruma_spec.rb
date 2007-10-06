@@ -113,7 +113,7 @@ describe Oniguruma, "constants" do
     Oniguruma.should have_constant("ENCODING_SJIS")
   end
   it "should have 'ENCODING_KOI8'" do
-    if Oniguruma::VERSION::ENGINE.to_i != 4
+    if Oniguruma::VERSION::ENGINE.to_i < 4
       Oniguruma.should have_constant("ENCODING_KOI8")
     else
       Oniguruma.should_not have_constant("ENCODING_KOI8")

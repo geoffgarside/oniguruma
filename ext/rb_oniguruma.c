@@ -53,7 +53,7 @@ Init_oniguruma()
   rb_define_const(og_mOniguruma, "ENCODING_EUC_KR",           INT2FIX(20));
   rb_define_const(og_mOniguruma, "ENCODING_EUC_CN",           INT2FIX(21));
   rb_define_const(og_mOniguruma, "ENCODING_SJIS",             INT2FIX(22));
-#if ONIGURUMA_VERSION_MAJOR != 4
+#if ONIGURUMA_VERSION_MAJOR < 4
   rb_define_const(og_mOniguruma, "ENCODING_KOI8",             INT2FIX(23));
 #endif
   rb_define_const(og_mOniguruma, "ENCODING_KOI8_R",           INT2FIX(24));
@@ -147,7 +147,7 @@ og_oniguruma_extract_encoding(VALUE encoding)
     case 20: return ONIG_ENCODING_EUC_KR;
     case 21: return ONIG_ENCODING_EUC_CN;
     case 22: return ONIG_ENCODING_SJIS;
-#if ONIGURUMA_VERSION_MAJOR != 4
+#if ONIGURUMA_VERSION_MAJOR < 4
     case 23: return ONIG_ENCODING_KOI8;
 #endif
     case 24: return ONIG_ENCODING_KOI8_R;
