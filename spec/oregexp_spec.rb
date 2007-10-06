@@ -324,6 +324,12 @@ describe Oniguruma::ORegexp, ".sub" do
     @oregexp = Oniguruma::ORegexp.new('pe')
     @oregexp.sub(@string) { |m| '++' }.should eql("++nelope")
   end
+  
+  it "should substitute and return new string (UTF-8)" do
+    @oregexp = Oniguruma::ORegexp.new('кот',
+      :encoding => Oniguruma::ENCODING_UTF8)
+    @oregexp.sub('кот на leash', 'собака').should eql('собака на leash')
+  end
 end
 
 describe Oniguruma::ORegexp, ".sub (Named Back-references)" do
