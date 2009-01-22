@@ -2,11 +2,17 @@
 #include "rb_oniguruma_match.h"
 #include "rb_oniguruma_struct_args.h"
 
+#if ONIGURUMA_VERSION_MAJOR >= 5
+# ifndef enc_len
+#  define enc_len(enc, byte) ONIGENC_MBC_ENC_LEN(enc, byte)
+# endif
+#endif
+
 // FIXME: enc_len is causing a Segmentation Fault
-#define og_oniguruma_oregexp_get_code_point(cp, cpl, enc, rep, pos) do {  \
-  cp = ONIGENC_MBC_TO_CODE(enc, RSTRING(rep)->ptr + pos,                  \
-    RSTRING(rep)->ptr + RSTRING(rep)->len - 1);                           \
-  cpl = enc_len(enc, *(RSTRING(rep)->ptr + pos));                         \
+#define og_oniguruma_oregexp_get_code_point(cp, cpl, enc, rep, pos) do {    \
+  cp = ONIGENC_MBC_TO_CODE(enc, OG_STRING_PTR(rep) + pos,                   \
+    OG_STRING_PTR(rep) + RSTRING(rep)->len - 1);                            \
+  cpl = enc_len(enc, (OG_STRING_PTR(rep) + pos));                           \
 } while(0)
 
 static inline void
