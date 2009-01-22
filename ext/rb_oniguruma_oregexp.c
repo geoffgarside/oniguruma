@@ -337,17 +337,17 @@ og_oniguruma_oregexp_do_replacement(VALUE self, VALUE buffer, VALUE str, VALUE r
           break;
         
         case '&': // matched substring
-          rb_str_buf_cat(buffer, subj + region->beg[0], region->end[0] - region->beg[0]);
+          rb_str_buf_cat(buffer, (char*)(subj + region->beg[0]), region->end[0] - region->beg[0]);
           position += code_point_len;
           break;
         
         case '`': // prematch
-          rb_str_buf_cat(buffer, subj, region->beg[0]);
+          rb_str_buf_cat(buffer, (char*)subj, region->beg[0]);
           position += code_point_len;
           break;
         
         case '\'': // postmatch
-          rb_str_buf_cat(buffer, subj + region->end[0], subj_len - region->end[0]);
+          rb_str_buf_cat(buffer, (char*)(subj + region->end[0]), subj_len - region->end[0]);
           position += code_point_len;
           break;
           
@@ -357,7 +357,7 @@ og_oniguruma_oregexp_do_replacement(VALUE self, VALUE buffer, VALUE str, VALUE r
           for (group = region->num_regs - 1; group > 0; group--)
           {
             if (region->beg[group] != -1) {
-              rb_str_buf_cat(buffer, subj + region->beg[group],
+              rb_str_buf_cat(buffer, (char*)(subj + region->beg[group]),
                 region->end[group] - region->beg[group]);
               break;
             }
@@ -394,7 +394,7 @@ og_oniguruma_oregexp_do_replacement(VALUE self, VALUE buffer, VALUE str, VALUE r
               OG_STRING_PTR(replacement) + named_group_end, region);
             
             if (group >= 0)
-              rb_str_buf_cat(buffer, subj + region->beg[group], 
+              rb_str_buf_cat(buffer, (char*)(subj + region->beg[group]),
                 region->end[group] - region->beg[group]);
             position = named_group_pos;
           }
@@ -408,7 +408,7 @@ og_oniguruma_oregexp_do_replacement(VALUE self, VALUE buffer, VALUE str, VALUE r
       } /* switch (code_point) */
     } else {
       if (group < region->num_regs && region->beg[group] >= 0)
-        rb_str_buf_cat(buffer, subj + region->beg[group],
+        rb_str_buf_cat(buffer, (char*)(subj + region->beg[group]),
           region->end[group] - region->beg[group]);
     } /* if (digits == 0) */
   } /* while (position < RSTRING(replacement)->len) */
@@ -464,7 +464,7 @@ og_oniguruma_oregexp_do_substitution(og_SubstitutionArgs *args)
     begin = args->region->beg[0];
     end   = args->region->end[0];
     
-    rb_str_buf_cat(buffer, subj + last_end, begin - last_end);
+    rb_str_buf_cat(buffer, (char*)(subj + last_end), begin - last_end);
     
     if (rb_block_given_p()) {
       /* yielding to a block */
@@ -475,7 +475,7 @@ og_oniguruma_oregexp_do_substitution(og_SubstitutionArgs *args)
       
       block_result = rb_yield(block_match);
       
-      og_oniguruma_string_modification_check(str, subj, subj_len);
+      og_oniguruma_string_modification_check(str, (char*)subj, subj_len);
       replacement = rb_obj_as_string(block_result);
       rb_str_append(buffer, replacement);
     } else {
@@ -488,8 +488,8 @@ og_oniguruma_oregexp_do_substitution(og_SubstitutionArgs *args)
     if (begin == end) {
       if (subj_len <= end) break;
       
-      multibyte_diff = enc_len(encoding, *(subj + end));
-      rb_str_buf_cat(buffer, subj + end, multibyte_diff);
+      multibyte_diff = enc_len(encoding, (subj + end));
+      rb_str_buf_cat(buffer, (char*)(subj + end), multibyte_diff);
       end += multibyte_diff;
     }
     
@@ -499,7 +499,7 @@ og_oniguruma_oregexp_do_substitution(og_SubstitutionArgs *args)
       args->region, ONIG_OPTION_NONE);
   } while (begin >= 0);
   
-  rb_str_buf_cat(buffer, subj + end, subj_len - end);
+  rb_str_buf_cat(buffer, (char*)(subj + end), subj_len - end);
   
   if (tainted_replacement)
     OBJ_INFECT(buffer, replacement);
