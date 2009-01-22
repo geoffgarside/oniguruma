@@ -37,7 +37,7 @@ og_oniguruma_match_initialize(OnigRegion *region, VALUE string)
 }
 
 int
-og_oniguruma_name_callback(UChar *name, UChar *name_end, 
+og_oniguruma_name_callback(OG_CALLBACK_UCHAR *name, OG_CALLBACK_UCHAR *name_end,
   int ngroup_num, int *group_nums, regex_t *reg, void *magic)
 {
   int i;
