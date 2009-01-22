@@ -343,12 +343,15 @@ describe Oniguruma::ORegexp, ".sub (Named Back-references)" do
     o.sub('abc123def', '123\<pre>').should eql('123def')
   end
   
-  it "should handle multibyte named backrefs"# do
-    # FIXME: Currently sits and eats CPU
-    # o = Oniguruma::ORegexp.new('(?<группа>test).+(\k<группа>)',
-    #   :encoding => Oniguruma::ENCODING_UTF8)
-    # o.sub("should test this damned test", '!\<группа>!').should eql("should !test!")
-  # end
+  it "should handle multibyte named backrefs" do
+    if Oniguruma::VERSION::ENGINE.to_i == 5
+      o = Oniguruma::ORegexp.new('(?<группа>test).+(\k<группа>)',
+        :encoding => Oniguruma::ENCODING_UTF8)
+      o.sub("should test this damned test", '!\<группа>!').should eql("should !test!")
+    else
+      pending("Untested in v2 or v4, it can cause hangs")
+    end
+  end
 end
 
 describe Oniguruma::ORegexp, ".sub!" do
