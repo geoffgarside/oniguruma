@@ -32,6 +32,8 @@ typedef struct og_oregexp {
   regex_t *reg;
 } og_ORegexp;
 
+#define OG_STRING_PTR(str) (UChar*)(RSTRING(str)->ptr)
+
 #define DEBUG 1
 
 #ifdef DEBUG
