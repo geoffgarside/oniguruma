@@ -47,7 +47,7 @@ og_oniguruma_name_callback(OG_CALLBACK_UCHAR *name, OG_CALLBACK_UCHAR *name_end,
   hash = arg->hash;
 
   for (i = 0; i < ngroup_num; i++)
-    rb_hash_aset(hash, ID2SYM(rb_intern(name)), INT2FIX(group_nums[i]));
+    rb_hash_aset(hash, ID2SYM(rb_intern((char*)name)), INT2FIX(group_nums[i]));
     
   return 0;
 }
