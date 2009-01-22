@@ -217,7 +217,7 @@ og_oniguruma_oregexp_do_match(VALUE self, OnigRegion *region, VALUE string)
   
   if (onig_number_of_names(oregexp->reg) > 0) {
     packet.hash = rb_hash_new();
-    onig_foreach_name(oregexp->reg, og_oniguruma_name_callback, &packet);
+    onig_foreach_name(oregexp->reg, &og_oniguruma_name_callback, &packet);
     rb_iv_set(match, "@named_captures", packet.hash);
   }
   
