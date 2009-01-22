@@ -8,7 +8,6 @@
 # endif
 #endif
 
-// FIXME: enc_len is causing a Segmentation Fault
 #define og_oniguruma_oregexp_get_code_point(cp, cpl, enc, rep, pos) do {    \
   cp = ONIGENC_MBC_TO_CODE(enc, OG_STRING_PTR(rep) + pos,                   \
     OG_STRING_PTR(rep) + RSTRING(rep)->len - 1);                            \
