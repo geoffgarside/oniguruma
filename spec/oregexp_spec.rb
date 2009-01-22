@@ -344,12 +344,12 @@ describe Oniguruma::ORegexp, ".sub (Named Back-references)" do
   end
   
   it "should handle multibyte named backrefs" do
-    if Oniguruma::VERSION::ENGINE.to_i == 5
+    if Oniguruma::VERSION::ENGINE.to_i >= 4
       o = Oniguruma::ORegexp.new('(?<группа>test).+(\k<группа>)',
         :encoding => Oniguruma::ENCODING_UTF8)
       o.sub("should test this damned test", '!\<группа>!').should eql("should !test!")
     else
-      pending("Untested in v2 or v4, it can cause hangs")
+      pending("Untested in v2, it can cause hangs")
     end
   end
 end
