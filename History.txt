@@ -1,3 +1,19 @@
+== 2.0.2 2009-02-01
+
+* 1 major enhancement:
+  * Changed from hoe to Jeweler for gem builds
+
+* 3 compatibility enhancements
+  * Compatibility between v2 and v4/5 improved
+  * OG_STRING_PTR macro helps reduce compatibility issues
+  * v5 enc_len() macro
+
+== 2.0.1 2008-04-15
+
+* 2 major enhancements:
+  * Oniguruma versions 2, 4 and 5 predominantly supported
+  * RSpec tests
+
 == 0.0.1 2007-08-16
 
 * 1 major enhancement:
