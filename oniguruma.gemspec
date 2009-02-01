@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.description = %q{TODO}
   s.email = %q{geoff-rubygems@geoffgarside.co.uk}
   s.extensions = ["ext/extconf.rb"]
-  s.files = ["History.txt", "License.txt", "Manifest.txt", "README.txt", "VERSION.yml", "ext/depend", "ext/extconf.rb", "ext/rb_oniguruma.c", "ext/rb_oniguruma_ext_match.c", "ext/rb_oniguruma_ext_string.c", "ext/rb_oniguruma_match.c", "ext/rb_oniguruma_oregexp.c", "ext/rb_oniguruma.h", "ext/rb_oniguruma_ext.h", "ext/rb_oniguruma_match.h", "ext/rb_oniguruma_struct_args.h", "ext/rb_oniguruma_version.h", "spec/match_ext_spec.rb", "spec/oniguruma_spec.rb", "spec/oregexp_spec.rb", "spec/spec.opts", "spec/spec_helper.rb", "spec/string_ext_spec.rb"]
+  s.files = ["History.txt", "License.txt", "README.txt", "VERSION.yml", "ext/depend", "ext/extconf.rb", "ext/rb_oniguruma.c", "ext/rb_oniguruma_ext_match.c", "ext/rb_oniguruma_ext_string.c", "ext/rb_oniguruma_match.c", "ext/rb_oniguruma_oregexp.c", "ext/rb_oniguruma.h", "ext/rb_oniguruma_ext.h", "ext/rb_oniguruma_match.h", "ext/rb_oniguruma_struct_args.h", "ext/rb_oniguruma_version.h", "spec/match_ext_spec.rb", "spec/oniguruma_spec.rb", "spec/oregexp_spec.rb", "spec/spec.opts", "spec/spec_helper.rb", "spec/string_ext_spec.rb"]
   s.has_rdoc = true
   s.homepage = %q{http://github.com/geoffgarside/ruby-oniguruma}
   s.rdoc_options = ["--inline-source", "--charset=UTF-8"]
