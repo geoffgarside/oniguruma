@@ -1,0 +1,4 @@
+ext/rb_oniguruma_version.h
+ext/Makefile
+ext/mkmf.log
+pkg
