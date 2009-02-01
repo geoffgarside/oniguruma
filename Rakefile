@@ -24,6 +24,9 @@ begin
     s.homepage    = 'http://github.com/geoffgarside/ruby-oniguruma'
     s.description = "TODO"
     s.authors     = ['Geoff Garside']
+    s.files       = FileList["[A-Z]*.*", "ext/depend", "ext/*.{rb,c,h}", "spec/*"]
+    s.extensions << 'ext/extconf.rb'
+    s.require_paths = ['ext']
   end
 rescue LoadError
   puts "Jeweler not available. Install it with: sudo gem install technicalpickles-jeweler -s http://gems.github.com"
