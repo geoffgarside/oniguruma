@@ -75,24 +75,56 @@ og_oniguruma_string_do_substitution(VALUE self, char *method, int argc, VALUE *a
   }
 }
 
+/*
+ * Document-method: ogsub
+ *
+ * call-seq:
+ *   ogsub(*args)
+ *
+ * Calls <code>Oniguruma::ORegexp#gsub</code> on this string.
+ */
 static VALUE
 og_oniguruma_string_ogsub(int argc, VALUE *argv, VALUE self)
 {
   return og_oniguruma_string_do_substitution(self, "gsub", argc, argv);
 }
 
+/*
+ * Document-method: ogsub!
+ *
+ * call-seq:
+ *   ogsub!(*args)
+ *
+ * Calls <code>Oniguruma::ORegexp#gsub!</code> on this string.
+ */
 static VALUE
 og_oniguruma_string_ogsub_bang(int argc, VALUE *argv, VALUE self)
 {
   return og_oniguruma_string_do_substitution(self, "gsub!", argc, argv);
 }
 
+/*
+ * Document-method: osub
+ *
+ * call-seq:
+ *   osub(*args)
+ *
+ * Calls <code>Oniguruma::ORegexp#sub</code> on this string.
+ */
 static VALUE
 og_oniguruma_string_osub(int argc, VALUE *argv, VALUE self)
 {
   return og_oniguruma_string_do_substitution(self, "sub", argc, argv);
 }
 
+/*
+ * Document-method: osub!
+ *
+ * call-seq:
+ *   osub!(*args)
+ *
+ * Calls <code>Oniguruma::ORegexp#sub!</code> on this string.
+ */
 static VALUE
 og_oniguruma_string_osub_bang(int argc, VALUE *argv, VALUE self)
 {
