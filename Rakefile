@@ -44,7 +44,7 @@ Rake::RDocTask.new do |rdoc|
   rdoc.title    = 'Ruby Oniguruma Bindings'
   rdoc.options << '--line-numbers' << '--inline-source'
   rdoc.rdoc_files.include('README*')
-  rdoc.rdoc_files.include('ext/*.c')
+  rdoc.rdoc_files.include('ext/*.[ch]')
 end
 
 ## File build rules
