@@ -44,11 +44,28 @@ Rake::RDocTask.new do |rdoc|
 end
 
 ## File build rules
-GENERATED_FILES = ['ext/Makefile']
+GENERATED_FILES = ['ext/rb_oniguruma_version.h', 'ext/Makefile']
 desc "Builds the Makefile for compiling the extension"
 file 'ext/Makefile' => 'ext/extconf.rb' do
   Dir.chdir('ext') do
     sh 'ruby extconf.rb'
+  end
+end
+
+desc "Generates the rb_oniguruma_version.h from VERSION.yml file"
+file 'ext/rb_oniguruma_version.h' => 'VERSION.yml' do
+  version_info = YAML.load_file('VERSION.yml')
+  File.open('ext/rb_oniguruma_version.h', 'w') do |f|
+    f.write <<-EOF
+#ifndef _RB_ONIGURUMA_VERSION_H_
+#define _RB_ONIGURUMA_VERSION_H_
+
+#define OG_VERSION_MAJOR  #{version_info[:major]}
+#define OG_VERSION_MINOR  #{version_info[:minor]}
+#define OG_VERSION_TEENY  #{version_info[:patch]}
+
+#endif /* _RB_ONIGURUMA_VERSION_H_ */
+EOF
   end
 end
 

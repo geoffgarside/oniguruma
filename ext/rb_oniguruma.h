@@ -25,6 +25,9 @@ void og_oniguruma_match_ext(VALUE mod);
 OnigEncodingType* og_oniguruma_extract_encoding(VALUE encoding);
 OnigSyntaxType* og_oniguruma_extract_syntax(VALUE syntax);
 
+/* Gem version function */
+VALUE og_oniguruma_gem_version();
+
 #define og_oniguruma_extract_option(opt) (OnigOptionType)NUM2INT(opt)
 
 /* Oniguruma::ORegexp C class data structure */
