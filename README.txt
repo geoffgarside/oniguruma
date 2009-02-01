@@ -43,7 +43,8 @@ Consult the Syntax.txt[link:files/Syntax_txt.html] page.
 == Requirements:
 
 * Oniguruma[http://www.geocities.jp/kosako3/oniguruma/] library, versions
-  2, 4 and 5 are supported.
+  2, 4 and 5 are supported. To find out which version of the library being
+  used you can check <code>Oniguruma::VERSION::ENGINE</code>.
 
 == Install:
 
@@ -51,6 +52,7 @@ Consult the Syntax.txt[link:files/Syntax_txt.html] page.
 
 == Bugs/Problems/Incompatibilities:
 
+* Documentation is incomplete due to issues with <code>RDoc::C_Parser</code>.
 * <code>ORegexp#~</code> is not implemented.
 * <code>ORegexp#kcode</code> results are not compatible with <code>Regexp</code>.
 * <code>ORegexp</code> options set in the string are not visible, this affects
@@ -59,7 +61,7 @@ Consult the Syntax.txt[link:files/Syntax_txt.html] page.
 
 == Todo:
 
-* Complete documentation (methods, oniguruma syntax).
+* Get documentation working in RDoc.
 
 == Credits:
 
@@ -70,4 +72,8 @@ Consult the Syntax.txt[link:files/Syntax_txt.html] page.
 
 == Licence:
 
-See the License.txt[link:files/License_txt.html] page for details
+Some portions of code are Copyright (c) 2007, Dizan Vasquez though due to
+heavy refactoring and integration of the original Ruby layer in C has made the
+division blurred.
+
+See the License.txt[link:files/License_txt.html] page for details.
