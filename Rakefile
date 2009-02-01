@@ -43,4 +43,35 @@ Rake::RDocTask.new do |rdoc|
   rdoc.rdoc_files.include('ext/*.c')
 end
 
+## File build rules
+GENERATED_FILES = ['ext/Makefile']
+desc "Builds the Makefile for compiling the extension"
+file 'ext/Makefile' => 'ext/extconf.rb' do
+  Dir.chdir('ext') do
+    sh 'ruby extconf.rb'
+  end
+end
+
+desc "Builds the extension shared library file"
+file 'ext/oniguruma.so' => FileList['ext/*.[ch]'].include(GENERATED_FILES) do
+  Dir.chdir('ext') do
+    sh 'make'
+  end
+end
+
+desc "Rebuilds the extension"
+task :recompile => [:clean, :compile]
+
+desc "Builds the extension"
+task :compile => 'ext/oniguruma.so'
+
+desc "Cleans the extension"
+task :clean do
+  Dir.chdir('ext') do
+    sh 'make clean'
+    sh 'rm mkmf.log Makefile'
+  end
+end
+
+task :spec => :compile
 task :default => :spec
