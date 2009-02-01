@@ -290,6 +290,30 @@ og_oniguruma_oregexp_do_match(VALUE self, OnigRegion *region, VALUE string)
   return match;
 }
 
+/*
+ * Document-method: match
+ *
+ * call-seq:
+ *    rxp.match(str)               => matchdata or nil
+ *    rxp.match(str, begin, end)   => matchdata or nil
+ *
+ * Returns a <code>MatchData</code> object describing the match, or
+ * <code>nil</code> if there was no match. This is equivalent to retrieving the
+ * value of the special variable <code>$~</code> following a normal match.
+ *
+ *    ORegexp.new('(.)(.)(.)').match("abc")[2]   #=> "b"
+ *
+ * The second form allows to perform the match in a region
+ * defined by <code>begin</code> and <code>end</code> while
+ * still taking into account look-behinds and look-forwards.
+ *
+ *    ORegexp.new('1*2*').match('11221122').offset       => [4,8]
+ *    ORegexp.new('(?<=2)1*2*').match('11221122').offset => [4,8]
+ *
+ * Compare with:
+ *
+ *    ORegexp.new('(?<=2)1*2*').match('11221122'[4..-1]) => nil
+ */
 static VALUE
 og_oniguruma_oregexp_match(int argc, VALUE *argv, VALUE self)
 {
@@ -598,24 +622,79 @@ og_oniguruma_oregexp_do_substitution_safe(VALUE self,
     og_oniguruma_oregexp_do_cleanup, (VALUE)region);
 }
 
+/*
+ * Document-method: gsub
+ *
+ * call-seq:
+ *     rxp.gsub(str, replacement)
+ *     rxp.gsub(str) {|match_data| ... }
+ *
+ * Returns a copy of _str_ with _all_ occurrences of _rxp_ pattern
+ * replaced with either _replacement_ or the value of the block.
+ *
+ * If a string is used as the replacement, the sequences \1, \2,
+ * and so on may be used to interpolate successive groups in the match.
+ *
+ * In the block form, the current MatchData object is passed in as a
+ * parameter. The value returned by the block will be substituted for
+ * the match on each call.
+ */
 static VALUE
 og_oniguruma_oregexp_gsub(int argc, VALUE *argv, VALUE self)
 {
   return og_oniguruma_oregexp_do_substitution_safe(self, argc, argv, 1, 0);
 }
 
+/*
+ * Document-method: gsub!
+ *
+ * call-seq:
+ *     rxp.gsub!(str, replacement)
+ *     rxp.gsub!(str) {|match_data| ... }
+ *
+ * Performs the substitutions of ORegexp#gsub in place, returning
+ * _str_, or _nil_ if no substitutions were performed
+ */
 static VALUE
 og_oniguruma_oregexp_gsub_bang(int argc, VALUE *argv, VALUE self)
 {
   return og_oniguruma_oregexp_do_substitution_safe(self, argc, argv, 1, 1);
 }
 
+/*
+ * Document-method: sub
+ *
+ * call-seq:
+ *     rxp.sub(str, replacement)
+ *     rxp.sub(str) {|match_data| ... }
+ *
+ * Returns a copy of _str_ with the _first_ occurrence of _rxp_ pattern
+ * replaced with either _replacement_ or the value of the block.
+ *
+ * If a string is used as the replacement, the sequences \1, \2,
+ * and so on may be used to interpolate successive groups in the match.
+ *
+ * In the block form, the current MatchData object is passed in as a
+ * parameter. The value returned by the block will be substituted for
+ * the match on each call.
+ */
 static VALUE
 og_oniguruma_oregexp_sub(int argc, VALUE *argv, VALUE self)
 {
   return og_oniguruma_oregexp_do_substitution_safe(self, argc, argv, 0, 0);
 }
 
+/*
+ * Document-method: sub!
+ *
+ * call-seq:
+ *     oregexp.sub!(str, replacement)
+ *     oregexp.sub!(str) {|match_data| ... }
+ *
+ * Performs the substitutions of ORegexp#sub in place, returning
+ * _str_, or _nil_ if no substitutions were performed.
+ *
+ */
 static VALUE
 og_oniguruma_oregexp_sub_bang(int argc, VALUE *argv, VALUE self)
 {
@@ -669,6 +748,19 @@ og_oniguruma_oregexp_do_scan(og_ScanArgs *args)
   return matches;
 }
 
+/*
+ * Document-method: scan
+ *
+ * call-seq:
+ *     rxp.scan(str)                        # => [matchdata1, matchdata2,...] or nil
+ *     rxp.scan(str) {|match_data| ... }    # => [matchdata1, matchdata2,...] or nil
+ *
+ * Both forms iterate through _str_, matching the pattern. For each match,
+ * a MatchData object is generated and passed to the block, and
+ * added to the resulting array of MatchData objects.
+ *
+ * If _str_ does not match pattern, _nil_ is returned.
+ */
 static VALUE
 og_oniguruma_oregexp_scan(VALUE self, VALUE str)
 {
@@ -680,6 +772,14 @@ og_oniguruma_oregexp_scan(VALUE self, VALUE str)
     og_oniguruma_oregexp_do_cleanup, (VALUE)region);
 }
 
+/*
+ * Document-method: casefold?
+ *
+ * call-seq:
+ *    rxp.casefold?   => true of false
+ *
+ * Returns the value of the case-insensitive flag.
+ */
 static VALUE
 og_oniguruma_oregexp_casefold(VALUE self)
 {
@@ -696,6 +796,17 @@ og_oniguruma_oregexp_casefold(VALUE self)
   return Qfalse;
 }
 
+/*
+ * Document-method: ==
+ *
+ * call-seq:
+ *    rxp == other_rxp      => true or false
+ *    rxp.eql?(other_rxp)   => true or false
+ *
+ * Equality---Two regexps are equal if their patterns are identical, they have
+ * the same character set code, and their <code>#casefold?</code> values are the
+ * same.
+ */
 static VALUE
 og_oniguruma_oregexp_operator_equality(VALUE self, VALUE rhs)
 {
@@ -716,6 +827,25 @@ og_oniguruma_oregexp_operator_equality(VALUE self, VALUE rhs)
   return Qfalse;
 }
 
+/*
+ * Document-method: ===
+ *
+ * call-seq:
+ *     rxp === str   => true or false
+ *
+ * Case Equality---Synonym for <code>ORegexp#=~</code> used in case statements.
+ *
+ *    a = "HELLO"
+ *    case a
+ *    when ORegexp.new('^[a-z]*$'); print "Lower case\n"
+ *    when ORegexp.new('^[A-Z]*$'); print "Upper case\n"
+ *    else;                         print "Mixed case\n"
+ *    end
+ *
+ * <em>produces:</em>
+ *
+ *    Upper case
+ */
 static VALUE
 og_oniguruma_oregexp_operator_identical(VALUE self, VALUE str)
 {
@@ -737,6 +867,19 @@ og_oniguruma_oregexp_operator_identical(VALUE self, VALUE str)
   return Qtrue;
 }
 
+/*
+ * Document-method: =~
+ *
+ * call-seq:
+ *    rxp =~ string  => int or nil
+ *
+ * Matches <code>rxp</code> against <code>string</code>, returning the offset
+ * of the start of the match or <code>nil</code> if the match failed. Sets $~
+ * to the corresponding <code>MatchData</code> or <code>nil</code>.
+ *
+ *    ORegexp.new( 'SIT' ) =~ "insensitive"                                 #=>    nil
+ *    ORegexp.new( 'SIT', :options => OPTION_IGNORECASE ) =~ "insensitive"  #=>    5
+ */
 static VALUE
 og_oniguruma_oregexp_operator_match(VALUE self, VALUE str)
 {
@@ -752,18 +895,54 @@ og_oniguruma_oregexp_operator_match(VALUE self, VALUE str)
   return INT2FIX(RMATCH(match)->regs->beg[0]);
 }
 
+/*
+ * Document-method: kcode
+ *
+ * call-seq:
+ *    rxp.kode        => int
+ *
+ * Returns the character set code for the regexp.
+ */
 static VALUE
 og_oniguruma_oregexp_kcode(VALUE self)
 {
   return rb_iv_get(self, "@encoding");
 }
 
+/*
+ * Document-method: options
+ *
+ * call-seq:
+ *    rxp.options   => fixnum
+ *
+ * Returns the set of bits corresponding to the options used when creating this
+ * ORegexp (see <code>ORegexp::new</code> for details. Note that additional bits
+ * may be set in the returned options: these are used internally by the regular
+ * expression code. These extra bits are ignored if the options are passed to
+ * <code>ORegexp::new</code>.
+ *
+ *    Oniguruma::OPTION_IGNORECASE                                 #=> 1
+ *    Oniguruma::OPTION_EXTEND                                     #=> 2
+ *    Oniguruma::OPTION_MULTILINE                                  #=> 4
+ *
+ *    Regexp.new(r.source, :options => Oniguruma::OPTION_EXTEND )  #=> 2
+ */
 static VALUE
 og_oniguruma_oregexp_options(VALUE self)
 {
   return rb_iv_get(self, "@options");
 }
 
+/*
+ * Document-method: source
+ *
+ * call-seq:
+ *    rxp.source   => str
+ *
+ * Returns the original string of the pattern.
+ *
+ *    ORegex.new( 'ab+c', 'ix' ).source   #=> "ab+c"
+ */
 static VALUE
 og_oniguruma_oregexp_source(VALUE self)
 {
@@ -772,6 +951,27 @@ og_oniguruma_oregexp_source(VALUE self)
   return pattern;
 }
 
+/*
+ * Document-method: to_s
+ *
+ * call-seq:
+ *    rxp.to_s   => str
+ *
+ * Returns a string containing the regular expression and its options (using the
+ * <code>(?xxx:yyy)</code> notation. This string can be fed back in to
+ * <code>Regexp::new</code> to a regular expression with the same semantics as
+ * the original. (However, <code>Regexp#==</code> may not return true when
+ * comparing the two, as the source of the regular expression itself may
+ * differ, as the example shows).  <code>Regexp#inspect</code> produces a
+ * generally more readable version of <i>rxp</i>.
+ *
+ *    r1 = ORegexp.new( 'ab+c', :options OPTION_IGNORECASE | OPTION_EXTEND ) #=> /ab+c/ix
+ *    s1 = r1.to_s                                                           #=> "(?ix-m:ab+c)"
+ *    r2 = ORegexp.new(s1)                                                   #=> /(?ix-m:ab+c)/
+ *    r1 == r2                                                               #=> false
+ *    r1.source                                                              #=> "ab+c"
+ *    r2.source                                                              #=> "(?ix-m:ab+c)"
+ */
 static VALUE
 og_oniguruma_oregexp_to_s(VALUE self)
 {
@@ -810,6 +1010,17 @@ og_oniguruma_oregexp_to_s(VALUE self)
   return rb_str_cat(str, ")", 1);
 }
 
+/*
+ * Document-method: inspect
+ *
+ * call-seq:
+ *    rxp.inspect   => string
+ *
+ * Returns a readable version of <i>rxp</i>
+ *
+ *    ORegexp.new( 'cat', :options => OPTION_MULTILINE | OPTION_IGNORECASE ).inspect  => /cat/im
+ *    ORegexp.new( 'cat', :options => OPTION_MULTILINE | OPTION_IGNORECASE ).to_s     => (?im-x)cat
+ */
 static VALUE
 og_oniguruma_oregexp_inspect(VALUE self)
 {
