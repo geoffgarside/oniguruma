@@ -90,7 +90,7 @@ desc "Cleans the extension"
 task :clean do
   Dir.chdir('ext') do
     sh 'make clean'
-    sh 'rm mkmf.log Makefile rb_oniguruma_version.h'
+    sh 'rm mkmf.log Makefile'
   end
 end
 
@@ -98,4 +98,4 @@ task :spec => :compile
 task :default => :spec
 
 ## Jeweler Overrides
-task 'gem:build' => 'ext/rb_oniguruma_version.h'
+task 'gemspec:generate' => 'ext/rb_oniguruma_version.h'
