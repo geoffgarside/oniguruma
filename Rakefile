@@ -24,7 +24,8 @@ begin
     s.homepage    = 'http://github.com/geoffgarside/ruby-oniguruma'
     s.description = "TODO"
     s.authors     = ['Geoff Garside']
-    s.files       = FileList["[A-Z]*.*", "ext/depend", "ext/*.{rb,c,h}", "spec/*"]
+    s.files       = FileList["[A-Z]*.*", "ext/depend", "ext/*.{rb,c,h}",
+                      'ext/rb_oniguruma_version.h', "spec/*"]
     s.extensions << 'ext/extconf.rb'
     s.require_paths = ['ext']
   end
@@ -89,9 +90,12 @@ desc "Cleans the extension"
 task :clean do
   Dir.chdir('ext') do
     sh 'make clean'
-    sh 'rm mkmf.log Makefile'
+    sh 'rm mkmf.log Makefile rb_oniguruma_version.h'
   end
 end
 
 task :spec => :compile
 task :default => :spec
+
+## Jeweler Overrides
+task 'gem:build' => 'ext/rb_oniguruma_version.h'
