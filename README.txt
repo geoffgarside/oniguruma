@@ -20,6 +20,11 @@ versions, though primarily it is only the 2.5.8 version which does not support
 multibyte regular expressions. Additionally some constant names were added or
 removed between Oniguruma[http://www.geocities.jp/kosako3/oniguruma/] versions.
 
+You can safely use this gem as a replacement to work with 
+Textpow[http://textpow.rubyforge.org] and 
+UltraViolet[http://ultraviolet.rubyforge.org] to get nice syntax highlighting
+in Warehouse[http://warehouseapp.com].
+
 == Features of Oniguruma[http://www.geocities.jp/kosako3/oniguruma/]:
 
 * Increased performance. 
