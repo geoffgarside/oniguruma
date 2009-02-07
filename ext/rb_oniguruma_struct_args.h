@@ -42,12 +42,12 @@ void print_SubstitutionArgs(og_SubstitutionArgs *args)
     int i;
     
     printf("og_SubstitutionArgs { \n");
-    printf("  [self] => %s,\n", RSTRING(rb_str_to_str(args->self))->ptr);
+    printf("  [self] => %s,\n", RSTRING_PTR(rb_str_to_str(args->self)));
     printf("  [argc] => %d,\n", args->argc);
     printf("  [argv] => Array {\n");
     
     for (i = 0; i < args->argc; i++)
-        printf("    [%d] => %s,\n", i, RSTRING(rb_str_to_str((args->argv[i])))->ptr);
+        printf("    [%d] => %s,\n", i, RSTRING_PTR(rb_str_to_str((args->argv[i]))));
     printf("  },\n");
     
     printf("  [global] => %d,\n  [update_self] => %d\n", args->global, args->update_self);

@@ -10,14 +10,14 @@
 
 #define og_oniguruma_oregexp_get_code_point(cp, cpl, enc, rep, pos) do {    \
   cp = ONIGENC_MBC_TO_CODE(enc, OG_STRING_PTR(rep) + pos,                   \
-    OG_STRING_PTR(rep) + RSTRING(rep)->len - 1);                            \
+    OG_STRING_PTR(rep) + RSTRING_LEN(rep) - 1);                             \
   cpl = enc_len(enc, (OG_STRING_PTR(rep) + pos));                           \
 } while(0)
 
 static inline void
 og_oniguruma_string_modification_check(VALUE s, char *p, long len)
 {
-  if (RSTRING(s)->ptr != p || RSTRING(s)->len != len)
+  if (RSTRING_PTR(s) != p || RSTRING_LEN(s) != len)
     rb_raise(rb_eRuntimeError, "string modified");
 }
 
@@ -141,7 +141,7 @@ og_oniguruma_oregexp_compile(VALUE self, VALUE regex)
   StringValue(regex);
   
   result = onig_new(&(oregexp->reg),    /* Regexp Object */
-    OG_STRING_PTR(regex), OG_STRING_PTR(regex) + RSTRING(regex)->len,
+    OG_STRING_PTR(regex), OG_STRING_PTR(regex) + RSTRING_LEN(regex),
     og_oniguruma_extract_option(rb_iv_get(self, "@options")),
     og_oniguruma_extract_encoding(rb_iv_get(self, "@encoding")),
     og_oniguruma_extract_syntax(rb_iv_get(self, "@syntax")),
@@ -225,7 +225,7 @@ og_oniguruma_oregexp_initialize(int argc, VALUE *argv, VALUE self)
     opts = 0;
     
     if (!NIL_P(opt)) {
-      for (i = 0, byte = RSTRING(opt)->ptr; i < RSTRING(opt)->len; i++, byte++)
+      for (i = 0, byte = RSTRING_PTR(opt); i < RSTRING_LEN(opt); i++, byte++)
       {
         cut = rb_hash_aref(shortcuts, rb_str_new(byte, 1));
         if (!NIL_P(cut))
@@ -236,8 +236,8 @@ og_oniguruma_oregexp_initialize(int argc, VALUE *argv, VALUE self)
     rb_hash_aset(options, ID2SYM(rb_intern("options")), INT2FIX(opts));
     
     if (!NIL_P(enc)) {
-      byte = (char *) malloc( sizeof(char) * (RSTRING(enc)->len + 10));
-      snprintf(byte, RSTRING(enc)->len + 10, "ENCODING_%s", RSTRING(enc)->ptr);
+      byte = (char *) malloc( sizeof(char) * (RSTRING_LEN(enc) + 10));
+      snprintf(byte, RSTRING_LEN(enc) + 10, "ENCODING_%s", RSTRING_PTR(enc));
       og_oniguruma_oregexp_upper(byte);
     
       if (!NIL_P(enc) && rb_const_defined(og_mOniguruma, rb_intern(byte)))
@@ -247,8 +247,8 @@ og_oniguruma_oregexp_initialize(int argc, VALUE *argv, VALUE self)
     }
     
     if (!NIL_P(syn)) {
-      byte = (char *) malloc( sizeof(char) * (RSTRING(syn)->len + 8));
-      snprintf(byte, RSTRING(syn)->len + 10, "SYNTAX_%s", RSTRING(syn)->ptr);
+      byte = (char *) malloc( sizeof(char) * (RSTRING_LEN(syn) + 8));
+      snprintf(byte, RSTRING_LEN(syn) + 10, "SYNTAX_%s", RSTRING_PTR(syn));
       og_oniguruma_oregexp_upper(byte);
     
       if (!NIL_P(syn) && rb_const_defined(og_mOniguruma, rb_intern(byte)))
@@ -328,7 +328,7 @@ og_oniguruma_oregexp_match(int argc, VALUE *argv, VALUE self)
   rb_scan_args(argc, argv, "12", &string, &begin, &end);
   
   if (NIL_P(begin)) begin = INT2FIX(0);
-  if (NIL_P(end))   end   = INT2FIX(RSTRING(string)->len);
+  if (NIL_P(end))   end   = INT2FIX(RSTRING_LEN(string));
   
   Data_Get_Struct(self, og_ORegexp, oregexp);
   
@@ -336,7 +336,7 @@ og_oniguruma_oregexp_match(int argc, VALUE *argv, VALUE self)
   
   region = onig_region_new();
   result = onig_search(oregexp->reg,
-    OG_STRING_PTR(string),  OG_STRING_PTR(string) + RSTRING(string)->len,
+    OG_STRING_PTR(string),  OG_STRING_PTR(string) + RSTRING_LEN(string),
     OG_STRING_PTR(string) + FIX2INT(begin),  OG_STRING_PTR(string) + FIX2INT(end),
     region, ONIG_OPTION_NONE);
   
@@ -373,12 +373,12 @@ og_oniguruma_oregexp_do_replacement(VALUE self, VALUE buffer, VALUE str, VALUE r
   OnigCodePoint code_point;
   OnigEncoding encoding;
   
-  subj = OG_STRING_PTR(str); subj_len = RSTRING(str)->len;
+  subj = OG_STRING_PTR(str); subj_len = RSTRING_LEN(str);
   Data_Get_Struct(self, og_ORegexp, oregexp);
   
   encoding = onig_get_encoding(oregexp->reg);
   
-  while (position < RSTRING(replacement)->len)
+  while (position < RSTRING_LEN(replacement))
   {
     og_oniguruma_oregexp_get_code_point(code_point, code_point_len, encoding, replacement, position);
     
@@ -390,19 +390,19 @@ og_oniguruma_oregexp_do_replacement(VALUE self, VALUE buffer, VALUE str, VALUE r
     position += code_point_len;
     
     if (code_point != 0x5c) { /* 0x5c is a backslash \ */
-      rb_str_buf_cat(buffer, RSTRING(replacement)->ptr + position - code_point_len, code_point_len);
+      rb_str_buf_cat(buffer, RSTRING_PTR(replacement) + position - code_point_len, code_point_len);
       continue;
     }
     
-    if (position >= RSTRING(replacement)->len) {
-      rb_str_buf_cat(buffer, RSTRING(replacement)->ptr + (position - code_point_len), code_point_len);
+    if (position >= RSTRING_LEN(replacement)) {
+      rb_str_buf_cat(buffer, RSTRING_PTR(replacement) + (position - code_point_len), code_point_len);
       break;
     }
     
     digits = group = 0;
     while(1) /* n + 1/2 times loop. break out manually. */
     {
-      if (position >= RSTRING(replacement)->len) break;
+      if (position >= RSTRING_LEN(replacement)) break;
       
       og_oniguruma_oregexp_get_code_point(code_point, code_point_len, encoding, replacement, position);
       
@@ -422,7 +422,7 @@ og_oniguruma_oregexp_do_replacement(VALUE self, VALUE buffer, VALUE str, VALUE r
       switch (code_point)
       {
         case '\\': // \ literal, just cat and keep going
-          rb_str_buf_cat(buffer, RSTRING(replacement)->ptr + position, code_point_len);
+          rb_str_buf_cat(buffer, RSTRING_PTR(replacement) + position, code_point_len);
           position += code_point_len;
           break;
         
@@ -462,7 +462,7 @@ og_oniguruma_oregexp_do_replacement(VALUE self, VALUE buffer, VALUE str, VALUE r
         case '<': // Oniguruma Gem named group reference (for compatibility)
           named_group_end = named_group_begin = named_group_pos = position + code_point_len;
           
-          while (named_group_pos < RSTRING(replacement)->len)
+          while (named_group_pos < RSTRING_LEN(replacement))
           {
             og_oniguruma_oregexp_get_code_point(code_point, code_point_len, encoding, replacement, named_group_pos);
             named_group_pos += code_point_len;
@@ -475,7 +475,7 @@ og_oniguruma_oregexp_do_replacement(VALUE self, VALUE buffer, VALUE str, VALUE r
           }
           
           if (code_point != '>' || named_group_end == named_group_begin) { // place backslash and '<'
-            rb_str_buf_cat(buffer, RSTRING(replacement)->ptr + (position - previous_code_point_len),
+            rb_str_buf_cat(buffer, RSTRING_PTR(replacement) + (position - previous_code_point_len),
               previous_code_point_len + code_point_len);
             position += code_point_len;
           } else { // lookup for group and subst for that value
@@ -491,7 +491,7 @@ og_oniguruma_oregexp_do_replacement(VALUE self, VALUE buffer, VALUE str, VALUE r
           break;
 
         default:
-          rb_str_buf_cat(buffer, RSTRING(replacement)->ptr + (position - previous_code_point_len),
+          rb_str_buf_cat(buffer, RSTRING_PTR(replacement) + (position - previous_code_point_len),
             previous_code_point_len + code_point_len);
           position += code_point_len;
           break;
@@ -501,7 +501,7 @@ og_oniguruma_oregexp_do_replacement(VALUE self, VALUE buffer, VALUE str, VALUE r
         rb_str_buf_cat(buffer, (char*)(subj + region->beg[group]),
           region->end[group] - region->beg[group]);
     } /* if (digits == 0) */
-  } /* while (position < RSTRING(replacement)->len) */
+  } /* while (position < RSTRING_LEN(replacement)) */
   
   return Qnil;
 }
@@ -533,7 +533,7 @@ og_oniguruma_oregexp_do_substitution(og_SubstitutionArgs *args)
   StringValue(str);
   
   Data_Get_Struct(args->self, og_ORegexp, oregexp);
-  subj = OG_STRING_PTR(str); subj_len = RSTRING(str)->len;
+  subj = OG_STRING_PTR(str); subj_len = RSTRING_LEN(str);
   
   begin = onig_search(oregexp->reg,
     subj, subj + subj_len,
@@ -714,8 +714,8 @@ og_oniguruma_oregexp_do_scan(og_ScanArgs *args)
   str = StringValue(args->str);
   
   begin = onig_search(oregexp->reg,
-    OG_STRING_PTR(str), OG_STRING_PTR(str) + RSTRING(str)->len,
-    OG_STRING_PTR(str), OG_STRING_PTR(str) + RSTRING(str)->len,
+    OG_STRING_PTR(str), OG_STRING_PTR(str) + RSTRING_LEN(str),
+    OG_STRING_PTR(str), OG_STRING_PTR(str) + RSTRING_LEN(str),
     args->region, ONIG_OPTION_NONE);
     
   if (begin < 0)
@@ -733,15 +733,15 @@ og_oniguruma_oregexp_do_scan(og_ScanArgs *args)
       rb_yield(match);
     
     if (end == begin) {
-      if( RSTRING(str)->len <= end )
+      if( RSTRING_LEN(str) <= end )
         break;
       multibyte_diff = enc_len(encoding, OG_STRING_PTR(str) + end);
       end += multibyte_diff;
     }
     
     begin = onig_search(oregexp->reg,
-      OG_STRING_PTR(str),       OG_STRING_PTR(str) + RSTRING(str)->len,
-      OG_STRING_PTR(str) + end, OG_STRING_PTR(str) + RSTRING(str)->len,
+      OG_STRING_PTR(str),       OG_STRING_PTR(str) + RSTRING_LEN(str),
+      OG_STRING_PTR(str) + end, OG_STRING_PTR(str) + RSTRING_LEN(str),
       args->region, ONIG_OPTION_NONE);
   } while (begin >= 0);
   
